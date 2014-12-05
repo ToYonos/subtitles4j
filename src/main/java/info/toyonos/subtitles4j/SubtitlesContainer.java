@@ -6,9 +6,9 @@ public class SubtitlesContainer implements Visitable
 {
 	private List<Caption> captions;
 
-	public void addCaption(int start, int end, String content)
+	public void addCaption(int start, int end, List<String> lines)
 	{
-		captions.add(new Caption(start, end, content));
+		captions.add(new Caption(start, end, lines));
 	}
 
 	@Override
@@ -25,13 +25,13 @@ public class SubtitlesContainer implements Visitable
 	{
 		public int start;
 		public int end;
-		public String content;
+		public List<String> lines;
 		
-		public Caption(int start, int end, String content)
+		public Caption(int start, int end, List<String> lines)
 		{
 			this.start = start;
 			this.end = end;
-			this.content = content;
+			this.lines = lines;
 		}
 
 		@Override

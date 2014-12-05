@@ -4,7 +4,7 @@ import java.io.File;
 
 public interface SubtitlesFactory
 {
-	public SubtitlesContainer fromFile(File input);
+	public SubtitlesContainer fromFile(File input) throws MalformedFileException;
 	
 	public File toFile(SubtitlesContainer container);
 }
