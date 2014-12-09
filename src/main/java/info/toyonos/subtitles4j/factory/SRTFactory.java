@@ -1,11 +1,13 @@
-package info.toyonos.subtitles4j;
+package info.toyonos.subtitles4j.factory;
 
-import info.toyonos.subtitles4j.SubtitlesContainer.Caption;
+import info.toyonos.subtitles4j.model.SubtitlesContainer;
+import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,11 +16,17 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 {
-	private static final String TIMESTAMPS_SEPARATOR = Pattern.quote("-->");
+	private static final String TIMESTAMPS_SEPARATOR = Pattern.quote(" --> ");
+	private static final String UTF8_BOM = "\uFEFF";
 
 	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("HH:mm:ss,SSS");
+	
+	private PrintWriter subtitlesWriter;
+	private int index;
 	
 	@Override
 	public SubtitlesContainer fromFile(File input) throws MalformedFileException
@@ -34,14 +42,14 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 	        
 	        while ((line = reader.readLine()) != null)
 	        {
-	        	int start, end;
-	        	line = line.trim();
+	        	long start, end;
+	        	line = removeUTF8BOM(line.trim());
 	        	
 	        	// Empty line : ignored
 	        	if (line.isEmpty()) continue;
 	        	
 	        	// Index verification
-	        	if (line.matches("[0-9]+)"))
+	        	if (line.matches("[0-9]+"))
 	        	{
 	        		int foundIndex = Integer.parseInt(line);
 	        		if (foundIndex != i++) throw malformedFileException(reader, "Unexpected index %d", foundIndex);
@@ -72,6 +80,7 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 	    catch (IOException e)
 	    {
 	    	// TODO log
+	    	e.printStackTrace();
 	    	return null;
 	    }
 	    finally
@@ -82,7 +91,7 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 	
 	private MalformedFileException malformedFileException(LineNumberReader reader, String content, Object... args)
 	{
-		return new MalformedFileException(String.format(content + " at line %d", args, reader.getLineNumber() + 1));
+		return new MalformedFileException(String.format(content + " at line %d", ArrayUtils.addAll(args, reader.getLineNumber())));
 	}
 
 	private MalformedFileException unexpectedEndOfFile(String message) 
@@ -90,13 +99,13 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		return new MalformedFileException("Unexpected end of file : " + message);
 	}
 	
-	private int getMilliseconds(LineNumberReader reader, String timestamp) throws MalformedFileException
+	private long getMilliseconds(LineNumberReader reader, String timestamp) throws MalformedFileException
 	{
 		try
 		{
 			Calendar calendar = GregorianCalendar.getInstance();
 			calendar.setTime(TIMESTAMPS_SDF.parse(timestamp)); 
-			return calendar.get(Calendar.MILLISECOND);
+			return calendar.getTimeInMillis() + calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
 		}
 		catch (ParseException e)
 		{
@@ -104,21 +113,63 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		}
 	}
 	
-	public File toFile(SubtitlesContainer container)
+	private String formatMilliseconds(long millis)
 	{
-		// TODO use visitor
-		return null;
+		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.setTimeInMillis(millis - calendar.getTimeZone().getOffset(calendar.getTimeInMillis()));
+		return TIMESTAMPS_SDF.format(calendar.getTime());
+	}
+	
+	private String removeUTF8BOM(String s)
+	{
+		if (s.startsWith(UTF8_BOM))
+		{
+			s = s.substring(1);
+		}
+		return s;
+	}
+
+	public File toFile(SubtitlesContainer container, File output)
+	{
+		try
+		{
+			subtitlesWriter = new PrintWriter(output);
+			index = 1;
+			container.accept(this);
+			return output;
+	    }
+	    catch (IOException e)
+	    {
+	    	// TODO log
+	    	return null;
+	    }
+		finally
+		{
+			subtitlesWriter.close();
+			subtitlesWriter = null;
+			index = 0;
+	    } 
 	}
 	
 	@Override
 	public void visit(SubtitlesContainer container)
 	{
-		// TODO Auto-generated method stub
+		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
+		
+		// Nothing to do here
 	}
 
 	@Override
 	public void visit(Caption caption)
 	{
-		// TODO Auto-generated method stub
+		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
+		
+		// Writing the caption
+		subtitlesWriter.append(String.valueOf(index++))
+		.append(formatMilliseconds(caption.start))
+		.append(TIMESTAMPS_SEPARATOR)
+		.append(formatMilliseconds(caption.end));
+		for (String line : caption.lines) subtitlesWriter.println(line);
+		subtitlesWriter.println("");
 	}
 }

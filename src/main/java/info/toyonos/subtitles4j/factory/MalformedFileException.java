@@ -1,4 +1,4 @@
-package info.toyonos.subtitles4j;
+package info.toyonos.subtitles4j.factory;
 
 public class MalformedFileException extends Exception
 {
@@ -23,5 +23,4 @@ public class MalformedFileException extends Exception
 	{
 		super(cause);
 	}
-
 }
