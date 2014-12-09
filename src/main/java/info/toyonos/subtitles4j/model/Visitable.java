@@ -1,9 +1,11 @@
-package info.toyonos.subtitles4j;
+package info.toyonos.subtitles4j.model;
+
+import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 /**
  * Interface that defines a class can be visited by a <code>SubtitlesVisitor</code>
  * 
- * @see info.toyonos.subtitles4j.SubtitlesVisitor
+ * @see info.toyonos.subtitles4j.factory.SubtitlesVisitor
  * @author ToYonos
  */
 public interface Visitable

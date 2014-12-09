@@ -1,4 +1,5 @@
-package info.toyonos.subtitles4j;
+package info.toyonos.subtitles4j.factory;
+
 
 public enum SubtitlesType
 {
