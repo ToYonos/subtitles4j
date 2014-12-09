@@ -1,6 +1,4 @@
-package info.toyonos.subtitles4j.factory;
-
-import info.toyonos.subtitles4j.model.SubtitlesContainer;
+package info.toyonos.subtitles4j;
 
 import java.io.File;
 import java.util.Map;
@@ -32,9 +30,9 @@ public class Subtitles4jFactory
 		return null;
 	}
 
-	public File toSRT(SubtitlesContainer container, File ouput)
+	public File toSRT(SubtitlesContainer container)
 	{
-		return factories.get(SubtitlesType.SRT).toFile(container, ouput);
+		return factories.get(SubtitlesType.SRT).toFile(container);
 	}
 	
 	public SubtitlesContainer fromFile(File input)

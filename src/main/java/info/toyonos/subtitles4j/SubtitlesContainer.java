@@ -1,27 +1,14 @@
-package info.toyonos.subtitles4j.model;
+package info.toyonos.subtitles4j;
 
-import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class SubtitlesContainer implements Visitable
 {
 	private List<Caption> captions;
 
-	public SubtitlesContainer()
-	{
-		captions = new ArrayList<SubtitlesContainer.Caption>();
-	}
-	
-	public void addCaption(long start, long end, List<String> lines)
+	public void addCaption(int start, int end, List<String> lines)
 	{
 		captions.add(new Caption(start, end, lines));
-	}
-
-	public List<Caption> getCaptions()
-	{
-		return captions;
 	}
 
 	@Override
@@ -36,11 +23,11 @@ public class SubtitlesContainer implements Visitable
 	
 	public class Caption implements Visitable
 	{
-		public long start;
-		public long end;
+		public int start;
+		public int end;
 		public List<String> lines;
 		
-		public Caption(long start, long end, List<String> lines)
+		public Caption(int start, int end, List<String> lines)
 		{
 			this.start = start;
 			this.end = end;
