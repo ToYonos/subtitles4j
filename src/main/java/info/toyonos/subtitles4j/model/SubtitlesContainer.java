@@ -36,14 +36,44 @@ public class SubtitlesContainer implements Visitable
 	
 	public class Caption implements Visitable
 	{
-		public long start;
-		public long end;
-		public List<String> lines;
-		
+		private long start;
+		private long end;
+		private List<String> lines;
+
 		public Caption(long start, long end, List<String> lines)
 		{
 			this.start = start;
 			this.end = end;
+			this.lines = lines;
+		}
+		
+		public long getStart()
+		{
+			return start;
+		}
+
+		public void setStart(long start)
+		{
+			this.start = start;
+		}
+
+		public long getEnd()
+		{
+			return end;
+		}
+
+		public void setEnd(long end)
+		{
+			this.end = end;
+		}
+
+		public List<String> getLines()
+		{
+			return lines;
+		}
+
+		public void setLines(List<String> lines)
+		{
 			this.lines = lines;
 		}
 

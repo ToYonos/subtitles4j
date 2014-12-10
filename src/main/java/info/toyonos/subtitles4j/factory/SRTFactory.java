@@ -166,10 +166,10 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		
 		// Writing the caption
 		subtitlesWriter.append(String.valueOf(index++))
-		.append(formatMilliseconds(caption.start))
+		.append(formatMilliseconds(caption.getStart()))
 		.append(TIMESTAMPS_SEPARATOR)
-		.append(formatMilliseconds(caption.end));
-		for (String line : caption.lines) subtitlesWriter.println(line);
+		.append(formatMilliseconds(caption.getEnd()));
+		for (String line : caption.getLines()) subtitlesWriter.println(line);
 		subtitlesWriter.println("");
 	}
 }
