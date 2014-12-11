@@ -7,35 +7,46 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import info.toyonos.subtitles4J.SubtitlesFileHandler;
+import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
+import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile.Type;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 @SuppressWarnings("unchecked")
 public class SRTFactoryTest
 {
 	private SRTFactory factory;
 
-	private File testFile1;
+	@Rule
+	public SubtitlesFileHandler subtitlesFileHandler = new SubtitlesFileHandler();
 
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
+	
 	@Before
 	public void setUp() throws Exception 
 	{
-		// TODO better resource management
 		factory = new SRTFactory();
-		testFile1 = new File("src/test/resources/srt/test1.srt");
 	}
 
 	@Test
-	public void testFromFile() throws MalformedFileException
+	@SubtitlesFile(type=Type.SRT, name="test1")
+	public void testFromFileOk() throws MalformedFileException
 	{
-		SubtitlesContainer container = factory.fromFile(testFile1);
+		SubtitlesContainer container = factory.fromFile(subtitlesFileHandler.getFile());
 
 		Assert.assertNotNull(container);
 		Assert.assertNotNull(container.getCaptions());
@@ -71,5 +82,45 @@ public class SRTFactoryTest
 				)
 			)
 		));
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.SRT, name="test2")
+	public void testFromFileKoBadIndex() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.SRT, name="test3")
+	public void testFromFileKoBadTimestamp() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.SRT, name="test4")
+	public void testFromFileKoEndOfFile() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test
+	@SubtitlesFile(type=Type.SRT, name={"expected1", "expected2"})
+	public void testToFileOk() throws IOException
+	{
+		SubtitlesContainer container = new SubtitlesContainer();
+		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));
+		File actual = factory.toFile(container, folder.newFile("output1.srt"));
+		
+		Assert.assertTrue(FileUtils.contentEquals(actual, subtitlesFileHandler.getFile("expected1")));
+		
+		container = new SubtitlesContainer();
+		container.addCaption(0, 1234, Arrays.asList("First one"));
+		container.addCaption(5000, 6000, Arrays.asList("Second", "One"));
+		container.addCaption(61888, 62001, Arrays.asList("And", "The", "Last", "One !"));
+		actual = factory.toFile(container, folder.newFile("output2.srt"));
+		
+		Assert.assertTrue(FileUtils.contentEquals(actual, subtitlesFileHandler.getFile("expected2")));
 	}
 }

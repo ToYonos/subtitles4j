@@ -14,13 +14,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 {
-	private static final String TIMESTAMPS_SEPARATOR = Pattern.quote(" --> ");
+	private static final String TIMESTAMPS_SEPARATOR = " --> ";
 	private static final String UTF8_BOM = "\uFEFF";
 
 	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("HH:mm:ss,SSS");
@@ -109,7 +108,7 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		}
 		catch (ParseException e)
 		{
-			throw malformedFileException(reader, "Malformed timestamp '%s'", e, timestamp);
+			throw malformedFileException(reader, "Malformed timestamp '%s'", timestamp);
 		}
 	}
 	
@@ -166,9 +165,11 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		
 		// Writing the caption
 		subtitlesWriter.append(String.valueOf(index++))
+		.append(System.getProperty("line.separator"))
 		.append(formatMilliseconds(caption.getStart()))
 		.append(TIMESTAMPS_SEPARATOR)
-		.append(formatMilliseconds(caption.getEnd()));
+		.append(formatMilliseconds(caption.getEnd()))
+		.append(System.getProperty("line.separator"));
 		for (String line : caption.getLines()) subtitlesWriter.println(line);
 		subtitlesWriter.println("");
 	}
