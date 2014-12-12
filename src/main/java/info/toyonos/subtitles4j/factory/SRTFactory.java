@@ -8,19 +8,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
+public class SRTFactory extends AbstractFormatFactory
 {
 	private static final String TIMESTAMPS_SEPARATOR = " --> ";
-	private static final String UTF8_BOM = "\uFEFF";
 
 	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("HH:mm:ss,SSS");
 	
@@ -87,46 +81,6 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 	       try { if (reader != null) reader.close(); } catch (IOException e) {}
 	    } 
 	}
-	
-	private MalformedFileException malformedFileException(LineNumberReader reader, String content, Object... args)
-	{
-		return new MalformedFileException(String.format(content + " at line %d", ArrayUtils.addAll(args, reader.getLineNumber())));
-	}
-
-	private MalformedFileException unexpectedEndOfFile(String message) 
-	{
-		return new MalformedFileException("Unexpected end of file : " + message);
-	}
-	
-	private long getMilliseconds(LineNumberReader reader, String timestamp) throws MalformedFileException
-	{
-		try
-		{
-			Calendar calendar = GregorianCalendar.getInstance();
-			calendar.setTime(TIMESTAMPS_SDF.parse(timestamp)); 
-			return calendar.getTimeInMillis() + calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
-		}
-		catch (ParseException e)
-		{
-			throw malformedFileException(reader, "Malformed timestamp '%s'", timestamp);
-		}
-	}
-	
-	private String formatMilliseconds(long millis)
-	{
-		Calendar calendar = GregorianCalendar.getInstance();
-		calendar.setTimeInMillis(millis - calendar.getTimeZone().getOffset(calendar.getTimeInMillis()));
-		return TIMESTAMPS_SDF.format(calendar.getTime());
-	}
-	
-	private String removeUTF8BOM(String s)
-	{
-		if (s.startsWith(UTF8_BOM))
-		{
-			s = s.substring(1);
-		}
-		return s;
-	}
 
 	public File toFile(SubtitlesContainer container, File output)
 	{
@@ -172,5 +126,11 @@ public class SRTFactory implements SubtitlesVisitor, SubtitlesFactory
 		.append(System.getProperty("line.separator"));
 		for (String line : caption.getLines()) subtitlesWriter.println(line);
 		subtitlesWriter.println("");
+	}
+
+	@Override
+	protected SimpleDateFormat getTimestampDateFormat()
+	{
+		return TIMESTAMPS_SDF;
 	}
 }
