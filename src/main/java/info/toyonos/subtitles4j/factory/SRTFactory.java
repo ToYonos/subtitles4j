@@ -7,18 +7,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SRTFactory extends AbstractFormatFactory
 {
-	private static final String TIMESTAMPS_SEPARATOR = " --> ";
-
 	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("HH:mm:ss,SSS");
+
+	private static final String TIMESTAMPS_SEPARATOR = " --> ";
 	
-	private PrintWriter subtitlesWriter;
 	private int index;
 	
 	@Override
@@ -81,35 +79,14 @@ public class SRTFactory extends AbstractFormatFactory
 	       try { if (reader != null) reader.close(); } catch (IOException e) {}
 	    } 
 	}
-
-	public File toFile(SubtitlesContainer container, File output)
-	{
-		try
-		{
-			subtitlesWriter = new PrintWriter(output);
-			index = 1;
-			container.accept(this);
-			return output;
-	    }
-	    catch (IOException e)
-	    {
-	    	// TODO log
-	    	return null;
-	    }
-		finally
-		{
-			subtitlesWriter.close();
-			subtitlesWriter = null;
-			index = 0;
-	    } 
-	}
 	
 	@Override
 	public void visit(SubtitlesContainer container)
 	{
 		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
 		
-		// Nothing to do here
+		// The index starts at 1
+		index = 1;
 	}
 
 	@Override

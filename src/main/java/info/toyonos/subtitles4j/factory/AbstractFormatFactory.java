@@ -1,6 +1,11 @@
 package info.toyonos.subtitles4j.factory;
 
+import info.toyonos.subtitles4j.model.SubtitlesContainer;
+
+import java.io.File;
+import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -11,6 +16,8 @@ import org.apache.commons.lang3.ArrayUtils;
 public abstract class AbstractFormatFactory implements SubtitlesVisitor, SubtitlesFactory
 {
 	private static final String UTF8_BOM = "\uFEFF";
+	
+	protected PrintWriter subtitlesWriter;
 	
 	/**
 	 * @return The <code>SimpleDateFormat</code> using by timestamps
@@ -62,5 +69,25 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 			s = s.substring(1);
 		}
 		return s;
+	}
+	
+	public File toFile(SubtitlesContainer container, File output)
+	{
+		try
+		{
+			subtitlesWriter = new PrintWriter(output);
+			container.accept(this);
+			return output;
+	    }
+	    catch (IOException e)
+	    {
+	    	// TODO log
+	    	return null;
+	    }
+		finally
+		{
+			subtitlesWriter.close();
+			subtitlesWriter = null;
+	    } 
 	}
 }
