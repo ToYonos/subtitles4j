@@ -6,20 +6,20 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ini4j.Config;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 // TODO handle SSA
 
-public class AssFactory extends AbstractFormatFactory
+public class ASSFactory extends AbstractFormatFactory
 {
-	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("H:mm:ss,SS");
+	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("H:mm:ss:SSS");
 	
 	private static final String SCRIPT_INFO 	= "Script Info";
 	//private static final String V4_STYLE		= "V4 Styles";
@@ -45,8 +45,6 @@ public class AssFactory extends AbstractFormatFactory
 	private static final String DEFAULT_STYLE = "Default";
 	private static final String DEFAULT_MARGIN = "0000";
 	
-	private Ini iniFile = null;
-	
 	@Override
 	public SubtitlesContainer fromFile(File input) throws MalformedFileException
 	{
@@ -54,13 +52,17 @@ public class AssFactory extends AbstractFormatFactory
 
 	    try
 	    {
-	    	Ini iniFile = new Ini(new FileReader(input));
+	    	Ini iniFile = new Ini();
+	    	Config conf = new Config();
+	    	conf.setEscape(false);
+	    	iniFile.setConfig(conf);
+	    	iniFile.load(new FileReader(input));
 
 	    	// TODO others sections
 	    	
 	    	// Captions
 	    	Section eventsSection = iniFile.get(EVENTS);
-	    	List<String> format = Arrays.asList(eventsSection.get(FORMAT).split(","));
+	    	List<String> format = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
 
     		// Start index
     		int idxStart = getIndex(format, FORMAT_START);
@@ -74,8 +76,8 @@ public class AssFactory extends AbstractFormatFactory
     		for (int i = 0; i < eventsSection.length(DIALOGUE); i++)
 	    	{
 	    		List<String> dialogue = Arrays.asList(eventsSection.get(DIALOGUE, i).split(","));
-	    		long start = getMilliseconds(dialogue.get(idxStart));
-	    		long end = getMilliseconds(dialogue.get(idxEnd));
+	    		long start = getMilliseconds(dialogue.get(idxStart) + "0");
+	    		long end = getMilliseconds(dialogue.get(idxEnd) + "0");
 	    		List<String> subtitlesLines = Arrays.asList(dialogue.get(idxText).replaceAll("\\{.*?\\}", "").split("\\\\n|\\\\N"));
 	    		
 	        	// Adding the caption

@@ -76,7 +76,7 @@ public class SubtitlesFileHandler implements TestRule
 	@Target(value = {ElementType.METHOD})
 	public @interface SubtitlesFile
 	{
-		public enum Type {SRT};
+		public enum Type {SRT, ASS};
 
 		public String[] name();
 		
