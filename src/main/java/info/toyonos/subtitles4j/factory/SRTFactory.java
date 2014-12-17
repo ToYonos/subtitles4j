@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class SRTFactory extends AbstractFormatFactory
 {
 	private static final SimpleDateFormat TIMESTAMPS_SDF = new SimpleDateFormat("HH:mm:ss,SSS");
@@ -43,7 +45,7 @@ public class SRTFactory extends AbstractFormatFactory
 	        	if (line.matches("[0-9]+"))
 	        	{
 	        		int foundIndex = Integer.parseInt(line);
-	        		if (foundIndex != i++) throw malformedFileException(reader, "Unexpected index %d", foundIndex);
+	        		if (foundIndex != i++) throw malformedFileException("Unexpected index %d", reader.getLineNumber(), foundIndex);
 	        	}
 	        	
 	        	// Timestamps
@@ -51,8 +53,8 @@ public class SRTFactory extends AbstractFormatFactory
 	        	if (timestamps == null) throw unexpectedEndOfFile("timestamps declaration was expected here");
 
 	        	String[] timestampsArray = timestamps.split(TIMESTAMPS_SEPARATOR);
-	        	start = getMilliseconds(reader, timestampsArray[0]);
-	        	end = getMilliseconds(reader, timestampsArray[1]);
+	        	start = getMilliseconds(timestampsArray[0], reader.getLineNumber());
+	        	end = getMilliseconds(timestampsArray[1], reader.getLineNumber());
 	        	
 	        	// Text content
 	        	List<String> subtitlesLines = new ArrayList<String>();
@@ -80,6 +82,11 @@ public class SRTFactory extends AbstractFormatFactory
 	    } 
 	}
 	
+	private MalformedFileException unexpectedEndOfFile(String message) 
+	{
+		return new MalformedFileException("Unexpected end of file : " + message);
+	}
+	
 	@Override
 	public void visit(SubtitlesContainer container)
 	{
@@ -101,7 +108,7 @@ public class SRTFactory extends AbstractFormatFactory
 		.append(TIMESTAMPS_SEPARATOR)
 		.append(formatMilliseconds(caption.getEnd()))
 		.append(System.getProperty("line.separator"));
-		for (String line : caption.getLines()) subtitlesWriter.println(line);
+		subtitlesWriter.println(StringUtils.join(caption.getLines(), '\n'));
 		subtitlesWriter.println("");
 	}
 

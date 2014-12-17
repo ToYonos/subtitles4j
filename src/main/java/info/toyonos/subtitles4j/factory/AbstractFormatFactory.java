@@ -24,19 +24,14 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	 */
 	protected abstract SimpleDateFormat getTimestampDateFormat();
 	
-	protected MalformedFileException malformedFileException(LineNumberReader reader, String content, Object... args)
+	protected MalformedFileException malformedFileException(String content, Integer lineNumber, Object... args)
 	{
-		return reader != null ?
-			new MalformedFileException(String.format(content + " at line %d", ArrayUtils.addAll(args, reader.getLineNumber()))) :
+		return lineNumber != null ?
+			new MalformedFileException(String.format(content + " at line %d", ArrayUtils.addAll(args, lineNumber))) :
 			new MalformedFileException(String.format(content, args));
 	}
-
-	protected MalformedFileException unexpectedEndOfFile(String message) 
-	{
-		return new MalformedFileException("Unexpected end of file : " + message);
-	}
 	
-	protected long getMilliseconds(LineNumberReader reader, String timestamp) throws MalformedFileException
+	protected long getMilliseconds(String timestamp, Integer lineNumber) throws MalformedFileException
 	{
 		try
 		{
@@ -46,13 +41,13 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 		}
 		catch (ParseException e)
 		{
-			throw malformedFileException(reader, "Malformed timestamp '%s'", timestamp);
+			throw malformedFileException("Malformed timestamp '%s'", lineNumber, timestamp);
 		}
 	}
 	
 	protected long getMilliseconds(String timestamp) throws MalformedFileException
 	{
-		return getMilliseconds(null, timestamp);
+		return getMilliseconds(timestamp, null);
 	}
 	
 	protected String formatMilliseconds(long millis)

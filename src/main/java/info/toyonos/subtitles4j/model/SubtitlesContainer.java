@@ -7,6 +7,9 @@ import java.util.List;
 
 public class SubtitlesContainer implements Visitable
 {
+	private String title;
+	private String author;
+	
 	private List<Caption> captions;
 
 	public SubtitlesContainer()
@@ -14,6 +17,26 @@ public class SubtitlesContainer implements Visitable
 		captions = new ArrayList<SubtitlesContainer.Caption>();
 	}
 	
+	public String getTitle()
+	{
+		return title;
+	}
+
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setAuthor(String author)
+	{
+		this.author = author;
+	}
+
 	public void addCaption(long start, long end, List<String> lines)
 	{
 		captions.add(new Caption(start, end, lines));
