@@ -1,15 +1,16 @@
 package info.toyonos.subtitles4j.factory;
 
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
+import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -23,6 +24,15 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	 * @return The <code>SimpleDateFormat</code> using by timestamps
 	 */
 	protected abstract SimpleDateFormat getTimestampDateFormat();
+	
+	/**
+	 * @return The <code>Map</code> which associate a <code>StyleProperty</code> with a label
+	 */
+	protected Map<StyleProperty, String> getStyleMapping()
+	{
+		// No style by default
+		return null;
+	}
 	
 	protected MalformedFileException malformedFileException(String content, Integer lineNumber, Object... args)
 	{

@@ -2,13 +2,16 @@ package info.toyonos.subtitles4j.factory;
 
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
+import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ini4j.Config;
@@ -51,6 +54,35 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final String DEFAULT_STYLE = "Default";
 	private static final String DEFAULT_MARGIN = "0000";
 	
+	// TODO map bidirectionnel
+	private static final Map<StyleProperty, String> STYLE_MAPPING = new HashMap<StyleProperty, String>();
+	static
+	{
+		STYLE_MAPPING.put(StyleProperty.NAME, "Name");
+		STYLE_MAPPING.put(StyleProperty.FONT_NAME, "Fontname");
+		STYLE_MAPPING.put(StyleProperty.FONT_SIZE, "Fontsize");
+		STYLE_MAPPING.put(StyleProperty.PRIMARY_COLOR, "PrimaryColour");
+		STYLE_MAPPING.put(StyleProperty.SECONDARY_COLOR, "SecondaryColour");
+		STYLE_MAPPING.put(StyleProperty.OUTLINE_COLOR, "OutlineColour");
+		STYLE_MAPPING.put(StyleProperty.BACK_COLOR, "BackColour");
+		STYLE_MAPPING.put(StyleProperty.BOLD, "Bold");
+		STYLE_MAPPING.put(StyleProperty.ITALIC, "Italic");
+		STYLE_MAPPING.put(StyleProperty.UNDERLINE, "Underline");
+		STYLE_MAPPING.put(StyleProperty.STRIKEOUT, "StrikeOut");
+		STYLE_MAPPING.put(StyleProperty.SCALE_X, "ScaleX");
+		STYLE_MAPPING.put(StyleProperty.SCALE_Y, "ScaleY");
+		STYLE_MAPPING.put(StyleProperty.SPACING, "Spacing");
+		STYLE_MAPPING.put(StyleProperty.ANGLE, "ANGLE");
+		STYLE_MAPPING.put(StyleProperty.BORDER_STYLE, "BorderStyle");
+		STYLE_MAPPING.put(StyleProperty.OUTLINE, "Outline");
+		STYLE_MAPPING.put(StyleProperty.SHADOW, "Shadow");
+		STYLE_MAPPING.put(StyleProperty.ALIGNMENT, "Alignment");
+		STYLE_MAPPING.put(StyleProperty.MARGIN_L, "MarginL");
+		STYLE_MAPPING.put(StyleProperty.MARGIN_R, "MarginR");
+		STYLE_MAPPING.put(StyleProperty.MARGIN_V, "MarginV");
+		STYLE_MAPPING.put(StyleProperty.ENCODING, "Encoding");
+	}
+	
 	@Override
 	public SubtitlesContainer fromFile(File input) throws MalformedFileException
 	{
@@ -64,7 +96,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    	iniFile.setConfig(conf);
 	    	iniFile.load(new FileReader(input));
 
-	    	// Script Info section : metadata
+	    	// ### Script Info section : metadata ###
 	    	Section scriptInfoSection = getSection(iniFile, SCRIPT_INFO);
 	    	
 	    	// Title
@@ -81,13 +113,17 @@ public class ASSFactory extends AbstractFormatFactory
 	    			SCRIPT_INFO_TYPE,
 	    			SCRIPT_TYPE,
 	    			scriptInfoSection.get(SCRIPT_INFO_TYPE)));
-	    	}
-	    	
+	    	}	    	
 	    	
 	    	// Timer
 	    	float timer = Float.parseFloat(scriptInfoSection.get(SCRIPT_INFO_TIMER, "100").replace(',', '.'));
 	    	
-	    	// Event section : captions
+	    	// ### V4+ Styles section ###
+	    	Section stylesSection = getSection(iniFile, V4PLUS_STYLE);
+	    	
+	    	
+	    	
+	    	// ### Event section : captions ###
 	    	Section eventsSection = getSection(iniFile, EVENTS);
 	    	List<String> format = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
 
@@ -189,5 +225,11 @@ public class ASSFactory extends AbstractFormatFactory
 	protected SimpleDateFormat getTimestampDateFormat()
 	{
 		return TIMESTAMPS_SDF;
+	}
+	
+	@Override
+	protected Map<StyleProperty, String> getStyleMapping()
+	{
+		return STYLE_MAPPING;
 	}
 }

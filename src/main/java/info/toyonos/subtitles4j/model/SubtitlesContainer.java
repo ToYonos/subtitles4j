@@ -3,18 +3,51 @@ package info.toyonos.subtitles4j.model;
 import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SubtitlesContainer implements Visitable
 {
+	public enum StyleProperty
+	{
+		NAME,
+		FONT_NAME,
+		FONT_SIZE,
+		PRIMARY_COLOR,
+		SECONDARY_COLOR,
+		OUTLINE_COLOR,
+		BACK_COLOR,
+		BOLD,
+		ITALIC,
+		UNDERLINE,
+		STRIKEOUT,
+		SCALE_X,
+		SCALE_Y,
+		SPACING,
+		ANGLE,
+		BORDER_STYLE,
+		OUTLINE,
+		SHADOW,
+		ALIGNMENT,
+		MARGIN_L,
+		MARGIN_R,
+		MARGIN_V,
+		ENCODING;
+	}
+	
+	
 	private String title;
 	private String author;
+	
+	private Map<StyleProperty, String> styles;
 	
 	private List<Caption> captions;
 
 	public SubtitlesContainer()
 	{
 		captions = new ArrayList<SubtitlesContainer.Caption>();
+		styles = new HashMap<SubtitlesContainer.StyleProperty, String>();
 	}
 	
 	public String getTitle()
@@ -35,6 +68,16 @@ public class SubtitlesContainer implements Visitable
 	public void setAuthor(String author)
 	{
 		this.author = author;
+	}
+	
+	public Map<StyleProperty, String> getStyles()
+	{
+		return styles;
+	}
+
+	public void setStyles(Map<StyleProperty, String> styles)
+	{
+		this.styles = styles;
 	}
 
 	public void addCaption(long start, long end, List<String> lines)
