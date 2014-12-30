@@ -40,14 +40,14 @@ public class SubtitlesContainer implements Visitable
 	private String title;
 	private String author;
 	
-	private Map<StyleProperty, String> styles;
+	private Map<String, Map<StyleProperty, String>> styles;
 	
 	private List<Caption> captions;
 
 	public SubtitlesContainer()
 	{
 		captions = new ArrayList<SubtitlesContainer.Caption>();
-		styles = new HashMap<SubtitlesContainer.StyleProperty, String>();
+		styles = new HashMap<String, Map<SubtitlesContainer.StyleProperty, String>>();
 	}
 	
 	public String getTitle()
@@ -70,14 +70,9 @@ public class SubtitlesContainer implements Visitable
 		this.author = author;
 	}
 	
-	public Map<StyleProperty, String> getStyles()
+	public Map<String, Map<StyleProperty, String>> getStyles()
 	{
 		return styles;
-	}
-
-	public void setStyles(Map<StyleProperty, String> styles)
-	{
-		this.styles = styles;
 	}
 
 	public void addCaption(long start, long end, List<String> lines)

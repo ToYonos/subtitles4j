@@ -18,6 +18,9 @@ import org.ini4j.Config;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 // TODO handle SSA
 
 public class ASSFactory extends AbstractFormatFactory
@@ -30,6 +33,7 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final String EVENTS 				= "Events";
 	private static final String FORMAT				= "Format";
 	private static final String DIALOGUE			= "Dialogue";
+	private static final String STYLE				= "Style";
 
 	private static final String SCRIPT_INFO_TITLE	= "Title";
 	private static final String SCRIPT_INFO_AUTHOR	= "Original Script";
@@ -53,9 +57,8 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final String SCRIPT_TYPE = "v4.00+";
 	private static final String DEFAULT_STYLE = "Default";
 	private static final String DEFAULT_MARGIN = "0000";
-	
-	// TODO map bidirectionnel
-	private static final Map<StyleProperty, String> STYLE_MAPPING = new HashMap<StyleProperty, String>();
+
+	private static final BiMap<StyleProperty, String> STYLE_MAPPING = HashBiMap.create();
 	static
 	{
 		STYLE_MAPPING.put(StyleProperty.NAME, "Name");
@@ -120,21 +123,61 @@ public class ASSFactory extends AbstractFormatFactory
 	    	
 	    	// ### V4+ Styles section ###
 	    	Section stylesSection = getSection(iniFile, V4PLUS_STYLE);
+	    	String[] styleFormat = stylesSection.get(FORMAT).split("\\s*,\\s*");
 	    	
+	    	BiMap<String, StyleProperty> mapping = STYLE_MAPPING.inverse();
+	    	// For each defined style
+	  		for (int i = 0; i < stylesSection.length(STYLE); i++)
+	    	{
+	  			String[] styleValues = stylesSection.get(STYLE, i).split(",");
+	  			Map<StyleProperty, String> styleValuesMap = null;
+		    	// For each value of this style
+		    	for (int j = 0; j < styleFormat.length; j++)
+		    	{
+		    		StyleProperty property = mapping.get(styleFormat[j]);
+		    		if (property != null)
+		    		{
+		    			if (property == StyleProperty.NAME)
+		    			{
+		    				// The style's key
+		    				styleValuesMap = new HashMap<SubtitlesContainer.StyleProperty, String>();
+		    				container.getStyles().put(styleValues[j], styleValuesMap);
+		    			}
+		    			else
+		    			{
+		    				// Regular property
+		    				if (styleValuesMap != null)
+		    				{
+		    					styleValuesMap.put(property, styleValues[j]);
+		    				}
+		    				else
+		    				{
+		    					// Key has not been initialized
+		    					// TODO log undefined style, no key
+		    					break;
+		    				}
+		    			}
+		    		}
+		    		else
+		    		{
+		    			// TODO log unknow property, ignored
+		    		}
+		    	}
+	    	}
 	    	
 	    	
 	    	// ### Event section : captions ###
 	    	Section eventsSection = getSection(iniFile, EVENTS);
-	    	List<String> format = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
+	    	List<String> eventFormat = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
 
     		// Start index
-    		int idxStart = getIndex(format, FORMAT_START);
+    		int idxStart = getIndex(eventFormat, FORMAT_START);
   
     		// End index
-    		int idxEnd = getIndex(format, FORMAT_END);
+    		int idxEnd = getIndex(eventFormat, FORMAT_END);
     		
     		// Text
-    		int idxText = getIndex(format, FORMAT_TEXT);
+    		int idxText = getIndex(eventFormat, FORMAT_TEXT);
     		
     		for (int i = 0; i < eventsSection.length(DIALOGUE); i++)
 	    	{
