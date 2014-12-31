@@ -28,6 +28,7 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	/**
 	 * @return The <code>Map</code> which associate a <code>StyleProperty</code> with a label
 	 */
+	// TODO useless ?
 	protected Map<StyleProperty, String> getStyleMapping()
 	{
 		// No style by default
@@ -94,5 +95,27 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 			subtitlesWriter.close();
 			subtitlesWriter = null;
 	    } 
+	}
+	
+	protected static class StyleMapping
+	{
+		public String name;
+		public boolean mandatory;
+		public String defaultValue;
+
+		public StyleMapping(String name, String defaultValue)
+		{
+			this.name = name;
+			this.mandatory = false;
+			this.defaultValue = defaultValue;
+		}
+		
+		public StyleMapping(String name, boolean mandatory)
+		{
+			super();
+			this.name = name;
+			this.mandatory = true;
+			this.defaultValue = null;
+		}
 	}
 }

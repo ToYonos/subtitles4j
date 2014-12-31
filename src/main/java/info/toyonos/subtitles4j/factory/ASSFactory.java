@@ -19,7 +19,7 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 
 // TODO handle SSA
 
@@ -58,32 +58,33 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final String DEFAULT_STYLE = "Default";
 	private static final String DEFAULT_MARGIN = "0000";
 
-	private static final BiMap<StyleProperty, String> STYLE_MAPPING = HashBiMap.create();
+	private static final BiMap<StyleProperty, StyleMapping> STYLE_MAPPING = new ImmutableBiMap.Builder<StyleProperty, StyleMapping>().build();
 	static
 	{
-		STYLE_MAPPING.put(StyleProperty.NAME, "Name");
-		STYLE_MAPPING.put(StyleProperty.FONT_NAME, "Fontname");
-		STYLE_MAPPING.put(StyleProperty.FONT_SIZE, "Fontsize");
-		STYLE_MAPPING.put(StyleProperty.PRIMARY_COLOR, "PrimaryColour");
-		STYLE_MAPPING.put(StyleProperty.SECONDARY_COLOR, "SecondaryColour");
-		STYLE_MAPPING.put(StyleProperty.OUTLINE_COLOR, "OutlineColour");
-		STYLE_MAPPING.put(StyleProperty.BACK_COLOR, "BackColour");
-		STYLE_MAPPING.put(StyleProperty.BOLD, "Bold");
-		STYLE_MAPPING.put(StyleProperty.ITALIC, "Italic");
-		STYLE_MAPPING.put(StyleProperty.UNDERLINE, "Underline");
-		STYLE_MAPPING.put(StyleProperty.STRIKEOUT, "StrikeOut");
-		STYLE_MAPPING.put(StyleProperty.SCALE_X, "ScaleX");
-		STYLE_MAPPING.put(StyleProperty.SCALE_Y, "ScaleY");
-		STYLE_MAPPING.put(StyleProperty.SPACING, "Spacing");
-		STYLE_MAPPING.put(StyleProperty.ANGLE, "ANGLE");
-		STYLE_MAPPING.put(StyleProperty.BORDER_STYLE, "BorderStyle");
-		STYLE_MAPPING.put(StyleProperty.OUTLINE, "Outline");
-		STYLE_MAPPING.put(StyleProperty.SHADOW, "Shadow");
-		STYLE_MAPPING.put(StyleProperty.ALIGNMENT, "Alignment");
-		STYLE_MAPPING.put(StyleProperty.MARGIN_L, "MarginL");
-		STYLE_MAPPING.put(StyleProperty.MARGIN_R, "MarginR");
-		STYLE_MAPPING.put(StyleProperty.MARGIN_V, "MarginV");
-		STYLE_MAPPING.put(StyleProperty.ENCODING, "Encoding");
+		// TODO default value
+		STYLE_MAPPING.put(StyleProperty.NAME, new StyleMapping("Name", true));
+		STYLE_MAPPING.put(StyleProperty.FONT_NAME, new StyleMapping("Fontname", true));
+		STYLE_MAPPING.put(StyleProperty.FONT_SIZE, new StyleMapping("Fontsize", true));
+		STYLE_MAPPING.put(StyleProperty.PRIMARY_COLOR, new StyleMapping("PrimaryColour", true));
+		STYLE_MAPPING.put(StyleProperty.SECONDARY_COLOR, new StyleMapping("SecondaryColour", true));
+		STYLE_MAPPING.put(StyleProperty.OUTLINE_COLOR, new StyleMapping("OutlineColour", true));
+		STYLE_MAPPING.put(StyleProperty.BACK_COLOR, new StyleMapping("BackColour", true));
+		STYLE_MAPPING.put(StyleProperty.BOLD, new StyleMapping("Bold", true));
+		STYLE_MAPPING.put(StyleProperty.ITALIC, new StyleMapping("Italic", true));
+		STYLE_MAPPING.put(StyleProperty.UNDERLINE, new StyleMapping("Underline", true));
+		STYLE_MAPPING.put(StyleProperty.STRIKEOUT, new StyleMapping("StrikeOut", true));
+		STYLE_MAPPING.put(StyleProperty.SCALE_X, new StyleMapping("ScaleX", true));
+		STYLE_MAPPING.put(StyleProperty.SCALE_Y, new StyleMapping("ScaleY", true));
+		STYLE_MAPPING.put(StyleProperty.SPACING, new StyleMapping("Spacing", true));
+		STYLE_MAPPING.put(StyleProperty.ANGLE, new StyleMapping("ANGLE", true));
+		STYLE_MAPPING.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", true));
+		STYLE_MAPPING.put(StyleProperty.OUTLINE, new StyleMapping("Outline", true));
+		STYLE_MAPPING.put(StyleProperty.SHADOW, new StyleMapping("Shadow", true));
+		STYLE_MAPPING.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment", true));
+		STYLE_MAPPING.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", true));
+		STYLE_MAPPING.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", true));
+		STYLE_MAPPING.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", true));
+		STYLE_MAPPING.put(StyleProperty.ENCODING, new StyleMapping("Encoding", true));
 	}
 	
 	@Override
@@ -125,7 +126,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    	Section stylesSection = getSection(iniFile, V4PLUS_STYLE);
 	    	String[] styleFormat = stylesSection.get(FORMAT).split("\\s*,\\s*");
 	    	
-	    	BiMap<String, StyleProperty> mapping = STYLE_MAPPING.inverse();
+	    	BiMap<StyleMapping, StyleProperty> mappings = STYLE_MAPPING.inverse();
 	    	// For each defined style
 	  		for (int i = 0; i < stylesSection.length(STYLE); i++)
 	    	{
@@ -134,7 +135,8 @@ public class ASSFactory extends AbstractFormatFactory
 		    	// For each value of this style
 		    	for (int j = 0; j < styleFormat.length; j++)
 		    	{
-		    		StyleProperty property = mapping.get(styleFormat[j]);
+		    		// TODO redefine StyleMapping equals and hash
+		    		StyleProperty property = mappings.get(styleFormat[j]);
 		    		if (property != null)
 		    		{
 		    			if (property == StyleProperty.NAME)
@@ -165,7 +167,6 @@ public class ASSFactory extends AbstractFormatFactory
 		    	}
 	    	}
 	    	
-	    	
 	    	// ### Event section : captions ###
 	    	Section eventsSection = getSection(iniFile, EVENTS);
 	    	List<String> eventFormat = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
@@ -176,6 +177,9 @@ public class ASSFactory extends AbstractFormatFactory
     		// End index
     		int idxEnd = getIndex(eventFormat, FORMAT_END);
     		
+    		// Style index
+    		int idxStyle = getIndex(eventFormat, FORMAT_STYLE);
+    		
     		// Text
     		int idxText = getIndex(eventFormat, FORMAT_TEXT);
     		
@@ -184,10 +188,11 @@ public class ASSFactory extends AbstractFormatFactory
 	    		List<String> dialogue = Arrays.asList(eventsSection.get(DIALOGUE, i).split(","));
 	    		long start = (long) (getMilliseconds(dialogue.get(idxStart) + "0") * timer / 100);
 	    		long end = (long) (getMilliseconds(dialogue.get(idxEnd) + "0") * timer / 100);
+	    		String styleName = dialogue.get(idxStyle);
 	    		List<String> subtitlesLines = Arrays.asList(dialogue.get(idxText).replaceAll("\\{.*?\\}", "").split("\\\\n|\\\\N"));
 	    		
 	        	// Adding the caption
-	        	container.addCaption(start, end, subtitlesLines);
+	        	container.addCaption(start, end, styleName, subtitlesLines);
 	    	}
 
 		    return container;
@@ -220,6 +225,39 @@ public class ASSFactory extends AbstractFormatFactory
 	@Override
 	public void visit(SubtitlesContainer container)
 	{
+		subtitlesWriter.println("[" + V4PLUS_STYLE + "]");
+		// TODO redefine StyleMapping ToString() 
+		subtitlesWriter.println(FORMAT + SEPARATOR + StringUtils.join(STYLE_MAPPING.values(), ", "));
+		
+		for (Map.Entry<String, Map<StyleProperty, String>> styleMapEntry : container.getStyles().entrySet())
+		{
+			subtitlesWriter.print(STYLE +	SEPARATOR + styleMapEntry.getKey() + VALUE_SEPARATOR);// + StringUtils.join(styleMap.values(), VALUE_SEPARATOR));
+			Map<StyleProperty, String> styleValues = styleMapEntry.getValue();
+			for (StyleProperty property : STYLE_MAPPING.keySet())
+			{
+				// Name is already handled
+				if (property == StyleProperty.NAME) continue;
+				
+				StyleMapping mapping = STYLE_MAPPING.get(property);
+				String value = styleValues.get(property);
+				if (value != null)
+				{
+					subtitlesWriter.print(value);
+					subtitlesWriter.print(VALUE_SEPARATOR);
+				}
+				else if (!mapping.mandatory)
+				{
+					// Default value
+					// TODO
+				}
+				else
+				{
+					// Mandatory field with no value : cancelling the transformation or style ?
+					// TODO
+				}
+			}
+		}
+
 		subtitlesWriter.println("[" + EVENTS + "]");
 		subtitlesWriter.println(
 			FORMAT +
@@ -270,9 +308,9 @@ public class ASSFactory extends AbstractFormatFactory
 		return TIMESTAMPS_SDF;
 	}
 	
-	@Override
+	/*@Override
 	protected Map<StyleProperty, String> getStyleMapping()
 	{
 		return STYLE_MAPPING;
-	}
+	}*/
 }

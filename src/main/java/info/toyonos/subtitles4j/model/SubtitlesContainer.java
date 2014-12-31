@@ -79,6 +79,11 @@ public class SubtitlesContainer implements Visitable
 	{
 		captions.add(new Caption(start, end, lines));
 	}
+	
+	public void addCaption(long start, long end, String styleKey, List<String> lines)
+	{
+		captions.add(new Caption(start, end, styleKey, lines));
+	}
 
 	public List<Caption> getCaptions()
 	{
@@ -99,12 +104,22 @@ public class SubtitlesContainer implements Visitable
 	{
 		private long start;
 		private long end;
+		private String styleKey;
 		private List<String> lines;
 
 		public Caption(long start, long end, List<String> lines)
 		{
 			this.start = start;
 			this.end = end;
+			this.styleKey = null;
+			this.lines = lines;
+		}
+		
+		public Caption(long start, long end, String styleKey, List<String> lines)
+		{
+			this.start = start;
+			this.end = end;
+			this.styleKey = styleKey;
 			this.lines = lines;
 		}
 		
@@ -126,6 +141,16 @@ public class SubtitlesContainer implements Visitable
 		public void setEnd(long end)
 		{
 			this.end = end;
+		}
+
+		public String getStyleKey()
+		{
+			return styleKey;
+		}
+
+		public void setStyleKey(String styleKey)
+		{
+			this.styleKey = styleKey;
 		}
 
 		public List<String> getLines()
