@@ -58,33 +58,35 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final String DEFAULT_STYLE = "Default";
 	private static final String DEFAULT_MARGIN = "0000";
 
-	private static final BiMap<StyleProperty, StyleMapping> STYLE_MAPPING = new ImmutableBiMap.Builder<StyleProperty, StyleMapping>().build();
+	private static final BiMap<StyleProperty, StyleMapping> STYLE_MAPPING;
 	static
 	{
 		// TODO default value
-		STYLE_MAPPING.put(StyleProperty.NAME, new StyleMapping("Name", true));
-		STYLE_MAPPING.put(StyleProperty.FONT_NAME, new StyleMapping("Fontname", true));
-		STYLE_MAPPING.put(StyleProperty.FONT_SIZE, new StyleMapping("Fontsize", true));
-		STYLE_MAPPING.put(StyleProperty.PRIMARY_COLOR, new StyleMapping("PrimaryColour", true));
-		STYLE_MAPPING.put(StyleProperty.SECONDARY_COLOR, new StyleMapping("SecondaryColour", true));
-		STYLE_MAPPING.put(StyleProperty.OUTLINE_COLOR, new StyleMapping("OutlineColour", true));
-		STYLE_MAPPING.put(StyleProperty.BACK_COLOR, new StyleMapping("BackColour", true));
-		STYLE_MAPPING.put(StyleProperty.BOLD, new StyleMapping("Bold", true));
-		STYLE_MAPPING.put(StyleProperty.ITALIC, new StyleMapping("Italic", true));
-		STYLE_MAPPING.put(StyleProperty.UNDERLINE, new StyleMapping("Underline", true));
-		STYLE_MAPPING.put(StyleProperty.STRIKEOUT, new StyleMapping("StrikeOut", true));
-		STYLE_MAPPING.put(StyleProperty.SCALE_X, new StyleMapping("ScaleX", true));
-		STYLE_MAPPING.put(StyleProperty.SCALE_Y, new StyleMapping("ScaleY", true));
-		STYLE_MAPPING.put(StyleProperty.SPACING, new StyleMapping("Spacing", true));
-		STYLE_MAPPING.put(StyleProperty.ANGLE, new StyleMapping("ANGLE", true));
-		STYLE_MAPPING.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", true));
-		STYLE_MAPPING.put(StyleProperty.OUTLINE, new StyleMapping("Outline", true));
-		STYLE_MAPPING.put(StyleProperty.SHADOW, new StyleMapping("Shadow", true));
-		STYLE_MAPPING.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment", true));
-		STYLE_MAPPING.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", true));
-		STYLE_MAPPING.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", true));
-		STYLE_MAPPING.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", true));
-		STYLE_MAPPING.put(StyleProperty.ENCODING, new StyleMapping("Encoding", true));
+		STYLE_MAPPING = new ImmutableBiMap.Builder<StyleProperty, StyleMapping>()
+		.put(StyleProperty.NAME, new StyleMapping("Name", true))
+		.put(StyleProperty.FONT_NAME, new StyleMapping("Fontname", true))
+		.put(StyleProperty.FONT_SIZE, new StyleMapping("Fontsize", true))
+		.put(StyleProperty.PRIMARY_COLOR, new StyleMapping("PrimaryColour", true))
+		.put(StyleProperty.SECONDARY_COLOR, new StyleMapping("SecondaryColour", true))
+		.put(StyleProperty.OUTLINE_COLOR, new StyleMapping("OutlineColour", true))
+		.put(StyleProperty.BACK_COLOR, new StyleMapping("BackColour", true))
+		.put(StyleProperty.BOLD, new StyleMapping("Bold", true))
+		.put(StyleProperty.ITALIC, new StyleMapping("Italic", true))
+		.put(StyleProperty.UNDERLINE, new StyleMapping("Underline", true))
+		.put(StyleProperty.STRIKEOUT, new StyleMapping("StrikeOut", true))
+		.put(StyleProperty.SCALE_X, new StyleMapping("ScaleX", true))
+		.put(StyleProperty.SCALE_Y, new StyleMapping("ScaleY", true))
+		.put(StyleProperty.SPACING, new StyleMapping("Spacing", true))
+		.put(StyleProperty.ANGLE, new StyleMapping("ANGLE", true))
+		.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", true))
+		.put(StyleProperty.OUTLINE, new StyleMapping("Outline", true))
+		.put(StyleProperty.SHADOW, new StyleMapping("Shadow", true))
+		.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment", true))
+		.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", true))
+		.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", true))
+		.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", true))
+		.put(StyleProperty.ENCODING, new StyleMapping("Encoding", true))
+		.build();
 	}
 	
 	@Override
@@ -135,7 +137,6 @@ public class ASSFactory extends AbstractFormatFactory
 		    	// For each value of this style
 		    	for (int j = 0; j < styleFormat.length; j++)
 		    	{
-		    		// TODO redefine StyleMapping equals and hash
 		    		StyleProperty property = mappings.get(styleFormat[j]);
 		    		if (property != null)
 		    		{
@@ -225,8 +226,7 @@ public class ASSFactory extends AbstractFormatFactory
 	@Override
 	public void visit(SubtitlesContainer container)
 	{
-		subtitlesWriter.println("[" + V4PLUS_STYLE + "]");
-		// TODO redefine StyleMapping ToString() 
+		subtitlesWriter.println("[" + V4PLUS_STYLE + "]"); 
 		subtitlesWriter.println(FORMAT + SEPARATOR + StringUtils.join(STYLE_MAPPING.values(), ", "));
 		
 		for (Map.Entry<String, Map<StyleProperty, String>> styleMapEntry : container.getStyles().entrySet())
@@ -252,7 +252,7 @@ public class ASSFactory extends AbstractFormatFactory
 				}
 				else
 				{
-					// Mandatory field with no value : cancelling the transformation or style ?
+					// Mandatory field with no value : cancel the transformation or style ?
 					// TODO
 				}
 			}

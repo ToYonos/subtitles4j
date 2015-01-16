@@ -112,10 +112,39 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 		
 		public StyleMapping(String name, boolean mandatory)
 		{
-			super();
 			this.name = name;
 			this.mandatory = true;
 			this.defaultValue = null;
 		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return name.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == null) return false;
+			
+			if (obj instanceof StyleMapping)
+			{
+				StyleMapping mapping = (StyleMapping) obj;
+				return name == null ? mapping.name == null : name.equals( mapping.name);
+			}
+			else if (obj instanceof String)
+			{
+				String mapping = (String) obj;
+				return name == null ? mapping == null : name.equals(mapping);
+			}
+			return false;
+		}	
 	}
 }
