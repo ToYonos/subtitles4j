@@ -107,7 +107,7 @@ public class SRTFactoryTest
 	
 	@Test
 	@SubtitlesFile(type=Type.SRT, name={"expected1", "expected2"})
-	public void testToFileOk() throws IOException
+	public void testToFileOk() throws IOException, FileGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));

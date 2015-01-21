@@ -1,6 +1,7 @@
 package info.toyonos.subtitles4j.factory;
 
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
+import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
@@ -77,7 +78,8 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 		return s;
 	}
 	
-	public File toFile(SubtitlesContainer container, File output)
+	@Override
+	public File toFile(SubtitlesContainer container, File output) throws FileGenerationException
 	{
 		try
 		{
@@ -97,24 +99,47 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	    } 
 	}
 	
+	@Override
+	public void visit(SubtitlesContainer container) throws FileGenerationException
+	{
+		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
+	}
+
+	@Override
+	public void visit(Caption caption) throws FileGenerationException
+	{
+		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
+	}
+	
 	protected static class StyleMapping
 	{
 		public String name;
 		public boolean mandatory;
 		public String defaultValue;
+		public StyleProperty mirroredProperty;
 
 		public StyleMapping(String name, String defaultValue)
 		{
 			this.name = name;
 			this.mandatory = false;
 			this.defaultValue = defaultValue;
+			this.mirroredProperty = null;
 		}
 		
-		public StyleMapping(String name, boolean mandatory)
+		public StyleMapping(String name, StyleProperty mirroredProperty)
+		{
+			this.name = name;
+			this.mandatory = false;
+			this.defaultValue = null;
+			this.mirroredProperty = mirroredProperty;
+		}
+		
+		public StyleMapping(String name)
 		{
 			this.name = name;
 			this.mandatory = true;
 			this.defaultValue = null;
+			this.mirroredProperty = null;
 		}
 
 		@Override

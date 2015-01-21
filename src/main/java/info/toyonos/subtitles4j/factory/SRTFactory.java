@@ -88,18 +88,18 @@ public class SRTFactory extends AbstractFormatFactory
 	}
 	
 	@Override
-	public void visit(SubtitlesContainer container)
+	public void visit(SubtitlesContainer container) throws FileGenerationException
 	{
-		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
-		
+		super.visit(container);
+
 		// The index starts at 1
 		index = 1;
 	}
 
 	@Override
-	public void visit(Caption caption)
+	public void visit(Caption caption) throws FileGenerationException
 	{
-		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
+		super.visit(caption);
 		
 		// Writing the caption
 		subtitlesWriter.append(String.valueOf(index++))

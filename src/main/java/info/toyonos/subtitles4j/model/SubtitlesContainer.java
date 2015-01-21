@@ -1,5 +1,6 @@
 package info.toyonos.subtitles4j.model;
 
+import info.toyonos.subtitles4j.factory.FileGenerationException;
 import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class SubtitlesContainer implements Visitable
 	}
 
 	@Override
-	public void accept(SubtitlesVisitor visitor)
+	public void accept(SubtitlesVisitor visitor) throws FileGenerationException
 	{
 		visitor.visit(this);
 		for (Caption caption : captions)
@@ -164,7 +165,7 @@ public class SubtitlesContainer implements Visitable
 		}
 
 		@Override
-		public void accept(SubtitlesVisitor visitor)
+		public void accept(SubtitlesVisitor visitor) throws FileGenerationException
 		{
 			visitor.visit(this);
 		}

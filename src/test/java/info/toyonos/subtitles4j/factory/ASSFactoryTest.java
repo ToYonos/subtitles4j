@@ -3,15 +3,19 @@ package info.toyonos.subtitles4j.factory;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import info.toyonos.subtitles4J.SubtitlesFileHandler;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile.Type;
+import info.toyonos.subtitles4j.factory.AbstractFormatFactory.StyleMapping;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
+import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +53,34 @@ public class ASSFactoryTest
 		SubtitlesContainer container = factory.fromFile(subtitlesFileHandler.getFile());
 
 		Assert.assertNotNull(container);
+
+		Assert.assertNotNull(container.getStyles());
+		Assert.assertNotNull(container.getStyles().get("Default"));
+		Assert.assertThat(container.getStyles().get("Default"), allOf(
+			hasEntry(is(StyleProperty.FONT_NAME), is("Arial")),
+			hasEntry(is(StyleProperty.FONT_SIZE), is("25")),
+			hasEntry(is(StyleProperty.PRIMARY_COLOR), is("&H00FFFFFF")),
+			hasEntry(is(StyleProperty.SECONDARY_COLOR), is("&H000000FF")),
+			hasEntry(is(StyleProperty.OUTLINE_COLOR), is("&H00000000")),
+			hasEntry(is(StyleProperty.BACK_COLOR), is("&H00000000")),
+			hasEntry(is(StyleProperty.BOLD), is("0")),
+			hasEntry(is(StyleProperty.ITALIC), is("0")),
+			hasEntry(is(StyleProperty.UNDERLINE), is("0")),
+			hasEntry(is(StyleProperty.STRIKEOUT), is("0")),
+			hasEntry(is(StyleProperty.SCALE_X), is("100")),
+			hasEntry(is(StyleProperty.SCALE_Y), is("100")),
+			hasEntry(is(StyleProperty.SPACING), is("0")),
+			hasEntry(is(StyleProperty.ANGLE), is("0")),
+			hasEntry(is(StyleProperty.BORDER_STYLE), is("1")),
+			hasEntry(is(StyleProperty.OUTLINE), is("2")),
+			hasEntry(is(StyleProperty.SHADOW), is("1")),
+			hasEntry(is(StyleProperty.ALIGNMENT), is("2")),
+			hasEntry(is(StyleProperty.MARGIN_L), is("10")),
+			hasEntry(is(StyleProperty.MARGIN_R), is("10")),
+			hasEntry(is(StyleProperty.MARGIN_V), is("10")),
+			hasEntry(is(StyleProperty.ENCODING), is("1"))
+		));
+		
 		Assert.assertNotNull(container.getCaptions());
 		Assert.assertThat(container.getCaptions(), allOf(
 			not(empty()),
@@ -107,7 +139,7 @@ public class ASSFactoryTest
 	
 	@Test
 	@SubtitlesFile(type=Type.ASS, name={"expected1", "expected2"})
-	public void testToFileOk() throws IOException
+	public void testToFileOk() throws IOException, FileGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));

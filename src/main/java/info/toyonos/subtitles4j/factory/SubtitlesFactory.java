@@ -8,5 +8,5 @@ public interface SubtitlesFactory
 {
 	public SubtitlesContainer fromFile(File input) throws MalformedFileException;
 	
-	public File toFile(SubtitlesContainer container, File output);
+	public File toFile(SubtitlesContainer container, File output) throws FileGenerationException;
 }

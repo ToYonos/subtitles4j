@@ -61,31 +61,30 @@ public class ASSFactory extends AbstractFormatFactory
 	private static final BiMap<StyleProperty, StyleMapping> STYLE_MAPPING;
 	static
 	{
-		// TODO default value
 		STYLE_MAPPING = new ImmutableBiMap.Builder<StyleProperty, StyleMapping>()
-		.put(StyleProperty.NAME, new StyleMapping("Name", true))
-		.put(StyleProperty.FONT_NAME, new StyleMapping("Fontname", true))
-		.put(StyleProperty.FONT_SIZE, new StyleMapping("Fontsize", true))
-		.put(StyleProperty.PRIMARY_COLOR, new StyleMapping("PrimaryColour", true))
-		.put(StyleProperty.SECONDARY_COLOR, new StyleMapping("SecondaryColour", true))
-		.put(StyleProperty.OUTLINE_COLOR, new StyleMapping("OutlineColour", true))
-		.put(StyleProperty.BACK_COLOR, new StyleMapping("BackColour", true))
-		.put(StyleProperty.BOLD, new StyleMapping("Bold", true))
-		.put(StyleProperty.ITALIC, new StyleMapping("Italic", true))
-		.put(StyleProperty.UNDERLINE, new StyleMapping("Underline", true))
-		.put(StyleProperty.STRIKEOUT, new StyleMapping("StrikeOut", true))
-		.put(StyleProperty.SCALE_X, new StyleMapping("ScaleX", true))
-		.put(StyleProperty.SCALE_Y, new StyleMapping("ScaleY", true))
-		.put(StyleProperty.SPACING, new StyleMapping("Spacing", true))
-		.put(StyleProperty.ANGLE, new StyleMapping("ANGLE", true))
-		.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", true))
-		.put(StyleProperty.OUTLINE, new StyleMapping("Outline", true))
-		.put(StyleProperty.SHADOW, new StyleMapping("Shadow", true))
-		.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment", true))
-		.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", true))
-		.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", true))
-		.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", true))
-		.put(StyleProperty.ENCODING, new StyleMapping("Encoding", true))
+		.put(StyleProperty.NAME, new StyleMapping("Name"))
+		.put(StyleProperty.FONT_NAME, new StyleMapping("Fontname"))
+		.put(StyleProperty.FONT_SIZE, new StyleMapping("Fontsize"))
+		.put(StyleProperty.PRIMARY_COLOR, new StyleMapping("PrimaryColour"))
+		.put(StyleProperty.SECONDARY_COLOR, new StyleMapping("SecondaryColour", StyleProperty.PRIMARY_COLOR))
+		.put(StyleProperty.OUTLINE_COLOR, new StyleMapping("OutlineColour", StyleProperty.PRIMARY_COLOR))
+		.put(StyleProperty.BACK_COLOR, new StyleMapping("BackColour"))
+		.put(StyleProperty.BOLD, new StyleMapping("Bold", "0"))
+		.put(StyleProperty.ITALIC, new StyleMapping("Italic", "0"))
+		.put(StyleProperty.UNDERLINE, new StyleMapping("Underline", "0"))
+		.put(StyleProperty.STRIKEOUT, new StyleMapping("StrikeOut", "0"))
+		.put(StyleProperty.SCALE_X, new StyleMapping("ScaleX", "100"))
+		.put(StyleProperty.SCALE_Y, new StyleMapping("ScaleY", "100"))
+		.put(StyleProperty.SPACING, new StyleMapping("Spacing", "0"))
+		.put(StyleProperty.ANGLE, new StyleMapping("Angle", "0"))
+		.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", "1"))
+		.put(StyleProperty.OUTLINE, new StyleMapping("Outline", "2"))
+		.put(StyleProperty.SHADOW, new StyleMapping("Shadow", "2"))
+		.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment"))
+		.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", "0"))
+		.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", "0"))
+		.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", "0"))
+		.put(StyleProperty.ENCODING, new StyleMapping("Encoding", "0"))
 		.build();
 	}
 	
@@ -224,36 +223,26 @@ public class ASSFactory extends AbstractFormatFactory
 	}
 
 	@Override
-	public void visit(SubtitlesContainer container)
+	public void visit(SubtitlesContainer container) throws FileGenerationException
 	{
-		subtitlesWriter.println("[" + V4PLUS_STYLE + "]"); 
-		subtitlesWriter.println(FORMAT + SEPARATOR + StringUtils.join(STYLE_MAPPING.values(), ", "));
+		super.visit(container);
 		
-		for (Map.Entry<String, Map<StyleProperty, String>> styleMapEntry : container.getStyles().entrySet())
+		if (!container.getStyles().isEmpty())
 		{
-			subtitlesWriter.print(STYLE +	SEPARATOR + styleMapEntry.getKey() + VALUE_SEPARATOR);// + StringUtils.join(styleMap.values(), VALUE_SEPARATOR));
-			Map<StyleProperty, String> styleValues = styleMapEntry.getValue();
-			for (StyleProperty property : STYLE_MAPPING.keySet())
+			subtitlesWriter.println("[" + V4PLUS_STYLE + "]"); 
+			subtitlesWriter.println(FORMAT + SEPARATOR + StringUtils.join(STYLE_MAPPING.values(), ", "));
+			
+			for (Map.Entry<String, Map<StyleProperty, String>> styleMapEntry : container.getStyles().entrySet())
 			{
-				// Name is already handled
-				if (property == StyleProperty.NAME) continue;
-				
-				StyleMapping mapping = STYLE_MAPPING.get(property);
-				String value = styleValues.get(property);
-				if (value != null)
+				subtitlesWriter.print(STYLE + SEPARATOR + styleMapEntry.getKey() + VALUE_SEPARATOR);
+				Map<StyleProperty, String> styleValues = styleMapEntry.getValue();
+				for (StyleProperty property : STYLE_MAPPING.keySet())
 				{
-					subtitlesWriter.print(value);
-					subtitlesWriter.print(VALUE_SEPARATOR);
-				}
-				else if (!mapping.mandatory)
-				{
-					// Default value
-					// TODO
-				}
-				else
-				{
-					// Mandatory field with no value : cancel the transformation or style ?
-					// TODO
+					// Name is already handled
+					if (property == StyleProperty.NAME) continue;
+	
+					// Priting the right value
+					printStyleValue(property, styleValues);
 				}
 			}
 		}
@@ -276,10 +265,46 @@ public class ASSFactory extends AbstractFormatFactory
 			", ")
 		);
 	}
+	
+	private void printStyleValue(StyleProperty property, Map<StyleProperty, String> styleValues) throws FileGenerationException
+	{
+		StyleMapping mapping = STYLE_MAPPING.get(property);
+		String value = styleValues.get(property);
+		if (value != null)
+		{
+			subtitlesWriter.print(value);
+			subtitlesWriter.print(VALUE_SEPARATOR);
+		}
+		else if (!mapping.mandatory)
+		{
+			// Default value
+			if (mapping.defaultValue != null)
+			{
+				subtitlesWriter.print(mapping.defaultValue);
+				subtitlesWriter.print(VALUE_SEPARATOR);
+			}
+			else if (mapping.mirroredProperty != null)
+			{
+				// If STYLE_MAPPING contains a StyleProperty mirrored on itself, infinite loop !
+				printStyleValue(mapping.mirroredProperty, styleValues);
+			}
+			else
+			{
+				throw new IllegalArgumentException("Invalid mapping '" + mapping.name + "', no default value or mirrored property");
+			}
+		}
+		else
+		{
+			// Mandatory field with no value
+			throw new FileGenerationException("The style property " + property + " does not have any value available");
+		}
+	}
 
 	@Override
-	public void visit(Caption caption)
+	public void visit(Caption caption) throws FileGenerationException
 	{
+		super.visit(caption);
+		
 		subtitlesWriter.print(DIALOGUE + SEPARATOR);
 		subtitlesWriter.print(0); // Layer
 		subtitlesWriter.print(VALUE_SEPARATOR);
@@ -307,10 +332,4 @@ public class ASSFactory extends AbstractFormatFactory
 	{
 		return TIMESTAMPS_SDF;
 	}
-	
-	/*@Override
-	protected Map<StyleProperty, String> getStyleMapping()
-	{
-		return STYLE_MAPPING;
-	}*/
 }

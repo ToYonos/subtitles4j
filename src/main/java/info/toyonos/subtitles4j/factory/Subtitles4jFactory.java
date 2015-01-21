@@ -32,7 +32,7 @@ public class Subtitles4jFactory
 		return null;
 	}
 
-	public File toSRT(SubtitlesContainer container, File ouput)
+	public File toSRT(SubtitlesContainer container, File ouput) throws FileGenerationException 
 	{
 		return factories.get(SubtitlesType.SRT).toFile(container, ouput);
 	}
