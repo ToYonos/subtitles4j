@@ -80,7 +80,7 @@ public class ASSFactory extends AbstractFormatFactory
 		.put(StyleProperty.BORDER_STYLE, new StyleMapping("BorderStyle", "1"))
 		.put(StyleProperty.OUTLINE, new StyleMapping("Outline", "2"))
 		.put(StyleProperty.SHADOW, new StyleMapping("Shadow", "2"))
-		.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment"))
+		.put(StyleProperty.ALIGNMENT, new StyleMapping("Alignment", "2"))
 		.put(StyleProperty.MARGIN_L, new StyleMapping("MarginL", "0"))
 		.put(StyleProperty.MARGIN_R, new StyleMapping("MarginR", "0"))
 		.put(StyleProperty.MARGIN_V, new StyleMapping("MarginV", "0"))
@@ -108,7 +108,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    	container.setTitle(scriptInfoSection.get(SCRIPT_INFO_TITLE));
 	    	
 	    	// Author
-	    	container.setTitle(scriptInfoSection.get(SCRIPT_INFO_AUTHOR));
+	    	container.setAuthor(scriptInfoSection.get(SCRIPT_INFO_AUTHOR));
 	    	
 	    	// Type verification
 	    	if (!SCRIPT_TYPE.equals(scriptInfoSection.get(SCRIPT_INFO_TYPE)))
@@ -191,6 +191,12 @@ public class ASSFactory extends AbstractFormatFactory
 	    		String styleName = dialogue.get(idxStyle);
 	    		List<String> subtitlesLines = Arrays.asList(dialogue.get(idxText).replaceAll("\\{.*?\\}", "").split("\\\\n|\\\\N"));
 	    		
+	    		// Checking the style
+	    		if (container.getStyles().get(styleName) == null)
+	    		{
+	    			throw new MalformedFileException("[Events] : the style '" + styleName + "' is not defined");
+	    		}
+	    		
 	        	// Adding the caption
 	        	container.addCaption(start, end, styleName, subtitlesLines);
 	    	}
@@ -227,9 +233,14 @@ public class ASSFactory extends AbstractFormatFactory
 	{
 		super.visit(container);
 		
+		subtitlesWriter.println("[" + SCRIPT_INFO + "]");
+		subtitlesWriter.println(SCRIPT_INFO_TITLE + SEPARATOR + container.getTitle());
+		subtitlesWriter.println(SCRIPT_INFO_AUTHOR + SEPARATOR + container.getAuthor());
+		subtitlesWriter.println(SCRIPT_INFO_TYPE + SEPARATOR + SCRIPT_TYPE);
+		
 		if (!container.getStyles().isEmpty())
 		{
-			subtitlesWriter.println("[" + V4PLUS_STYLE + "]"); 
+			subtitlesWriter.println("\n[" + V4PLUS_STYLE + "]"); 
 			subtitlesWriter.println(FORMAT + SEPARATOR + StringUtils.join(STYLE_MAPPING.values(), ", "));
 			
 			for (Map.Entry<String, Map<StyleProperty, String>> styleMapEntry : container.getStyles().entrySet())
@@ -241,13 +252,14 @@ public class ASSFactory extends AbstractFormatFactory
 					// Name is already handled
 					if (property == StyleProperty.NAME) continue;
 	
-					// Priting the right value
+					// Printing the right value
 					printStyleValue(property, styleValues);
 				}
+				subtitlesWriter.println();
 			}
 		}
 
-		subtitlesWriter.println("[" + EVENTS + "]");
+		subtitlesWriter.println("\n[" + EVENTS + "]");
 		subtitlesWriter.println(
 			FORMAT +
 			SEPARATOR +

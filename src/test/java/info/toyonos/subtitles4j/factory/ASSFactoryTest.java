@@ -3,16 +3,14 @@ package info.toyonos.subtitles4j.factory;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import info.toyonos.subtitles4J.SubtitlesFileHandler;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile.Type;
-import info.toyonos.subtitles4j.factory.AbstractFormatFactory.StyleMapping;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
@@ -20,6 +18,7 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
@@ -54,6 +53,9 @@ public class ASSFactoryTest
 
 		Assert.assertNotNull(container);
 
+		Assert.assertEquals(container.getTitle(), "A title");
+		Assert.assertEquals(container.getAuthor(), "Toyo");
+		
 		Assert.assertNotNull(container.getStyles());
 		Assert.assertNotNull(container.getStyles().get("Default"));
 		Assert.assertThat(container.getStyles().get("Default"), allOf(
@@ -116,32 +118,71 @@ public class ASSFactoryTest
 		));
 	}
 	
-	/*@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test2")
-	public void testFromFileKoBadIndex() throws MalformedFileException
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.ASS, name="test2")
+	public void testFromFileKoMissingInfoSection() throws MalformedFileException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test3")
+	@SubtitlesFile(type=Type.ASS, name="test3")
+	public void testFromFileKoMissingStyleSection() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.ASS, name="test4")
+	public void testFromFileKoMissingEventSection() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.ASS, name="test5")
+	public void testFromFileKoMissingEventKey() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.ASS, name="test6")
+	public void testFromFileKoUndefinedStyle() throws MalformedFileException
+	{
+		factory.fromFile(subtitlesFileHandler.getFile());
+	}
+	
+	@Test(expected=MalformedFileException.class)
+	@SubtitlesFile(type=Type.ASS, name="test7")
 	public void testFromFileKoBadTimestamp() throws MalformedFileException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test4")
-	public void testFromFileKoEndOfFile() throws MalformedFileException
+	@SubtitlesFile(type=Type.ASS, name="test8")
+	public void testFromFileKoInvalidScriptType() throws MalformedFileException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
-	}*/
-	
+	}
+
 	@Test
 	@SubtitlesFile(type=Type.ASS, name={"expected1", "expected2"})
 	public void testToFileOk() throws IOException, FileGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
+		
+		container.setTitle("Test title");
+		container.setAuthor("Test author");
+		
+		container.getStyles().put("Default", new HashMap<SubtitlesContainer.StyleProperty, String>());
+		container.getStyles().get("Default").put(StyleProperty.NAME, "Default");
+		container.getStyles().get("Default").put(StyleProperty.FONT_NAME, "Arial");
+		container.getStyles().get("Default").put(StyleProperty.FONT_SIZE, "12");
+		container.getStyles().get("Default").put(StyleProperty.PRIMARY_COLOR, "&H00FFFFFF");
+		container.getStyles().get("Default").put(StyleProperty.BACK_COLOR, "&H00000000");
+		
 		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));
 		File actual = factory.toFile(container, folder.newFile("output1.ass"));
 		

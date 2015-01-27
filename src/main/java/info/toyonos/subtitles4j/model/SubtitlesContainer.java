@@ -30,7 +30,7 @@ public class SubtitlesContainer implements Visitable
 		BORDER_STYLE,
 		OUTLINE,
 		SHADOW,
-		ALIGNMENT,
+		ALIGNMENT, // (1-3 sub, 4-6 mid, 7-9 top)
 		MARGIN_L,
 		MARGIN_R,
 		MARGIN_V,

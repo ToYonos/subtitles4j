@@ -109,7 +109,7 @@ public class SRTFactory extends AbstractFormatFactory
 		.append(formatMilliseconds(caption.getEnd()))
 		.append(System.getProperty("line.separator"));
 		subtitlesWriter.println(StringUtils.join(caption.getLines(), '\n'));
-		subtitlesWriter.println("");
+		subtitlesWriter.println();
 	}
 
 	@Override

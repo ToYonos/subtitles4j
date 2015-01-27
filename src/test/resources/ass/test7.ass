@@ -1,6 +1,6 @@
 [Script Info]
-Title: Test title
-Original Script: Test author
+; This is a comment
+Title: A title
 ScriptType: v4.00+
 
 [V4+ Styles]
@@ -9,4 +9,6 @@ Style: Default,Arial,25,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00:00,0:00:00:12,Default,,0000,0000,0000,,This\Nis\Na\Ntest
+Dialogue: 0,0:00:01;23,0:00:04:56,Default,,0000,0000,0000,,Line 1
+Dialogue: 0,0:00:02:34,0:00:05:67,Default,,0000,0000,0000,,Line 1\nLine 2
+Dialogue: 0,0:00:03:45,0:00:06:78,Default,,0000,0000,0000,,Line 1\nLine 2\NLine 3
