@@ -45,19 +45,22 @@ public class SubtitlesFileHandler implements TestRule
 				// Getting the annotation
 				SubtitlesFile subtitlesFile = description.getAnnotation(SubtitlesFile.class);
 
-				// Fetching Files
-				for (String name : subtitlesFile.name())
+				if (subtitlesFile != null)
 				{
-					files.put(name, new File(getClass().getClassLoader()
-						.getResource(
-							subtitlesFile.type().name().toLowerCase() +
-							File.separator +
-							name +
-							"." +
-							subtitlesFile.type().name().toLowerCase()
-						)
-						.getFile()
-					));	
+					// Fetching Files
+					for (String name : subtitlesFile.name())
+					{
+						files.put(name, new File(getClass().getClassLoader()
+							.getResource(
+								subtitlesFile.type().name().toLowerCase() +
+								File.separator +
+								name +
+								"." +
+								subtitlesFile.type().name().toLowerCase()
+							)
+							.getFile()
+						));	
+					}
 				}
 
 				try

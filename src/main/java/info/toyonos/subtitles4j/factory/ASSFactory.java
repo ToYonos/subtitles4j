@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ini4j.Config;
@@ -247,13 +248,15 @@ public class ASSFactory extends AbstractFormatFactory
 			{
 				subtitlesWriter.print(STYLE + SEPARATOR + styleMapEntry.getKey() + VALUE_SEPARATOR);
 				Map<StyleProperty, String> styleValues = styleMapEntry.getValue();
-				for (StyleProperty property : STYLE_MAPPING.keySet())
+				TreeSet<StyleProperty> properties = new TreeSet<SubtitlesContainer.StyleProperty>(STYLE_MAPPING.keySet());
+				for (StyleProperty property : properties)
 				{
 					// Name is already handled
 					if (property == StyleProperty.NAME) continue;
 	
 					// Printing the right value
 					printStyleValue(property, styleValues);
+					if (properties.last() != property) subtitlesWriter.print(VALUE_SEPARATOR);
 				}
 				subtitlesWriter.println();
 			}
@@ -285,7 +288,6 @@ public class ASSFactory extends AbstractFormatFactory
 		if (value != null)
 		{
 			subtitlesWriter.print(value);
-			subtitlesWriter.print(VALUE_SEPARATOR);
 		}
 		else if (!mapping.mandatory)
 		{
@@ -293,7 +295,6 @@ public class ASSFactory extends AbstractFormatFactory
 			if (mapping.defaultValue != null)
 			{
 				subtitlesWriter.print(mapping.defaultValue);
-				subtitlesWriter.print(VALUE_SEPARATOR);
 			}
 			else if (mapping.mirroredProperty != null)
 			{
@@ -324,7 +325,7 @@ public class ASSFactory extends AbstractFormatFactory
 		subtitlesWriter.print(VALUE_SEPARATOR);
 		subtitlesWriter.print(StringUtils.chop(formatMilliseconds(caption.getEnd()))); // End
 		subtitlesWriter.print(VALUE_SEPARATOR);
-		subtitlesWriter.print(DEFAULT_STYLE); // Style
+		subtitlesWriter.print(caption.getStyleKey() != null ? caption.getStyleKey() : DEFAULT_STYLE); // Style
 		subtitlesWriter.print(VALUE_SEPARATOR);
 		subtitlesWriter.print(""); // Name
 		subtitlesWriter.print(VALUE_SEPARATOR);

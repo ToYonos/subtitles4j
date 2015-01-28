@@ -172,10 +172,9 @@ public class ASSFactoryTest
 	public void testToFileOk() throws IOException, FileGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
-		
 		container.setTitle("Test title");
 		container.setAuthor("Test author");
-		
+
 		container.getStyles().put("Default", new HashMap<SubtitlesContainer.StyleProperty, String>());
 		container.getStyles().get("Default").put(StyleProperty.NAME, "Default");
 		container.getStyles().get("Default").put(StyleProperty.FONT_NAME, "Arial");
@@ -189,11 +188,52 @@ public class ASSFactoryTest
 		Assert.assertTrue(FileUtils.contentEquals(actual, subtitlesFileHandler.getFile("expected1")));
 		
 		container = new SubtitlesContainer();
+		container.setTitle("Test title");
+		container.setAuthor("Test author");
+
+		container.getStyles().put("Default", new HashMap<SubtitlesContainer.StyleProperty, String>());
+		container.getStyles().get("Default").put(StyleProperty.NAME, "Default");
+		container.getStyles().get("Default").put(StyleProperty.FONT_NAME, "Arial");
+		container.getStyles().get("Default").put(StyleProperty.FONT_SIZE, "12");
+		container.getStyles().get("Default").put(StyleProperty.PRIMARY_COLOR, "&H00FFFFFF");
+		container.getStyles().get("Default").put(StyleProperty.BACK_COLOR, "&H00000000");
+		container.getStyles().put("Style1", new HashMap<SubtitlesContainer.StyleProperty, String>());
+		container.getStyles().get("Style1").put(StyleProperty.NAME, "Style1");
+		container.getStyles().get("Style1").put(StyleProperty.FONT_NAME, "Arial");
+		container.getStyles().get("Style1").put(StyleProperty.FONT_SIZE, "14");
+		container.getStyles().get("Style1").put(StyleProperty.PRIMARY_COLOR, "&H00FFFFFF");
+		container.getStyles().get("Style1").put(StyleProperty.BACK_COLOR, "&H00000000");
+		container.getStyles().get("Style1").put(StyleProperty.BOLD, "1");
+		container.getStyles().put("Style2", new HashMap<SubtitlesContainer.StyleProperty, String>());
+		container.getStyles().get("Style2").put(StyleProperty.NAME, "Style2");
+		container.getStyles().get("Style2").put(StyleProperty.FONT_NAME, "Arial");
+		container.getStyles().get("Style2").put(StyleProperty.FONT_SIZE, "16");
+		container.getStyles().get("Style2").put(StyleProperty.PRIMARY_COLOR, "&H00FFFFFF");
+		container.getStyles().get("Style2").put(StyleProperty.BACK_COLOR, "&H00000000");
+		container.getStyles().get("Style2").put(StyleProperty.ITALIC, "1");
+		
 		container.addCaption(0, 1234, Arrays.asList("First one"));
-		container.addCaption(5000, 6000, Arrays.asList("Second", "One"));
-		container.addCaption(61888, 62001, Arrays.asList("And", "The", "Last", "One !"));
+		container.addCaption(5000, 6000, "Style1", Arrays.asList("Second", "One"));
+		container.addCaption(61888, 62001, "Style2", Arrays.asList("And", "The", "Last", "One !"));
 		actual = factory.toFile(container, folder.newFile("output2.ass"));
 		
 		Assert.assertTrue(FileUtils.contentEquals(actual, subtitlesFileHandler.getFile("expected2")));
+	}
+
+	@Test(expected=FileGenerationException.class)
+	public void testToFileKoMandatoryFieldNoValue() throws IOException, FileGenerationException
+	{
+		SubtitlesContainer container = new SubtitlesContainer();
+		container.setTitle("Test title");
+		container.setAuthor("Test author");
+
+		container.getStyles().put("Default", new HashMap<SubtitlesContainer.StyleProperty, String>());
+		container.getStyles().get("Default").put(StyleProperty.NAME, "Default");
+		container.getStyles().get("Default").put(StyleProperty.FONT_SIZE, "12");
+		container.getStyles().get("Default").put(StyleProperty.PRIMARY_COLOR, "&H00FFFFFF");
+		container.getStyles().get("Default").put(StyleProperty.BACK_COLOR, "&H00000000");
+		
+		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));
+		factory.toFile(container, folder.newFile("output3.ass"));
 	}
 }
