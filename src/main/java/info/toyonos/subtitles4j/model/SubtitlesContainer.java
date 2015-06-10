@@ -91,6 +91,15 @@ public class SubtitlesContainer implements Visitable
 		return captions;
 	}
 
+	public void shiftTime(int millis)
+	{
+		for (Caption caption : captions)
+		{
+			caption.addStart(millis);
+			caption.addEnd(millis);
+		}
+	}
+	
 	@Override
 	public void accept(SubtitlesVisitor visitor) throws FileGenerationException
 	{
@@ -133,6 +142,12 @@ public class SubtitlesContainer implements Visitable
 		{
 			this.start = start;
 		}
+		
+		public void addStart(long millis)
+		{
+			start += millis;
+			if (start < 0) start = 0; 
+		}
 
 		public long getEnd()
 		{
@@ -142,6 +157,12 @@ public class SubtitlesContainer implements Visitable
 		public void setEnd(long end)
 		{
 			this.end = end;
+		}
+		
+		public void addEnd(long millis)
+		{
+			end += millis;
+			if (end < 0) end = 0; 
 		}
 
 		public String getStyleKey()

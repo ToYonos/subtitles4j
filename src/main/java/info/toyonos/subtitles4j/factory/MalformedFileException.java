@@ -1,6 +1,6 @@
 package info.toyonos.subtitles4j.factory;
 
-public class MalformedFileException extends Exception
+public class MalformedFileException extends Subtitles4jException
 {
 	private static final long serialVersionUID = 4714051403733532699L;
 
