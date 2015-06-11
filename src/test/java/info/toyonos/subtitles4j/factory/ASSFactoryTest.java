@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import info.toyonos.subtitles4J.SubtitlesFileHandler;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
-import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile.Type;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
@@ -46,7 +45,7 @@ public class ASSFactoryTest
 	}
 
 	@Test
-	@SubtitlesFile(type=Type.ASS, name="test1")
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test1")
 	public void testFromFileOk() throws Exception
 	{		
 		SubtitlesContainer container = factory.fromFile(subtitlesFileHandler.getFile());
@@ -118,58 +117,58 @@ public class ASSFactoryTest
 		));
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test2")
-	public void testFromFileKoMissingInfoSection() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test2")
+	public void testFromFileKoMissingInfoSection() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test3")
-	public void testFromFileKoMissingStyleSection() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test3")
+	public void testFromFileKoMissingStyleSection() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test4")
-	public void testFromFileKoMissingEventSection() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test4")
+	public void testFromFileKoMissingEventSection() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test5")
-	public void testFromFileKoMissingEventKey() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test5")
+	public void testFromFileKoMissingEventKey() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test6")
-	public void testFromFileKoUndefinedStyle() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test6")
+	public void testFromFileKoUndefinedStyle() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test7")
-	public void testFromFileKoBadTimestamp() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test7")
+	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.ASS, name="test8")
-	public void testFromFileKoInvalidScriptType() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.ASS, name="test8")
+	public void testFromFileKoInvalidScriptType() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 
 	@Test
-	@SubtitlesFile(type=Type.ASS, name={"expected1", "expected2"})
-	public void testToFileOk() throws IOException, FileGenerationException
+	@SubtitlesFile(type=SubtitlesType.ASS, name={"expected1", "expected2"})
+	public void testToFileOk() throws IOException, SubtitlesGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 		container.setTitle("Test title");
@@ -220,8 +219,8 @@ public class ASSFactoryTest
 		Assert.assertTrue(FileUtils.contentEquals(actual, subtitlesFileHandler.getFile("expected2")));
 	}
 
-	@Test(expected=FileGenerationException.class)
-	public void testToFileKoMandatoryFieldNoValue() throws IOException, FileGenerationException
+	@Test(expected=SubtitlesGenerationException.class)
+	public void testToFileKoMandatoryFieldNoValue() throws IOException, SubtitlesGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 		container.setTitle("Test title");

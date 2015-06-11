@@ -5,7 +5,10 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,14 +39,14 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 		return null;
 	}
 	
-	protected MalformedFileException malformedFileException(String content, Integer lineNumber, Object... args)
+	protected MalformedSubtitlesException malformedFileException(String content, Integer lineNumber, Object... args)
 	{
 		return lineNumber != null ?
-			new MalformedFileException(String.format(content + " at line %d", ArrayUtils.addAll(args, lineNumber))) :
-			new MalformedFileException(String.format(content, args));
+			new MalformedSubtitlesException(String.format(content + " at line %d", ArrayUtils.addAll(args, lineNumber))) :
+			new MalformedSubtitlesException(String.format(content, args));
 	}
 	
-	protected long getMilliseconds(String timestamp, Integer lineNumber) throws MalformedFileException
+	protected long getMilliseconds(String timestamp, Integer lineNumber) throws MalformedSubtitlesException
 	{
 		try
 		{
@@ -57,7 +60,7 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 		}
 	}
 	
-	protected long getMilliseconds(String timestamp) throws MalformedFileException
+	protected long getMilliseconds(String timestamp) throws MalformedSubtitlesException
 	{
 		return getMilliseconds(timestamp, null);
 	}
@@ -65,7 +68,7 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	protected String formatMilliseconds(long millis)
 	{
 		Calendar calendar = GregorianCalendar.getInstance();
-		calendar.setTimeInMillis(millis - calendar.getTimeZone().getOffset(calendar.getTimeInMillis()));
+		calendar.setTimeInMillis(millis - calendar.get(Calendar.ZONE_OFFSET));
 		return getTimestampDateFormat().format(calendar.getTime());
 	}
 	
@@ -79,18 +82,43 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	}
 	
 	@Override
-	public File toFile(SubtitlesContainer container, File output) throws FileGenerationException
+	public SubtitlesContainer fromFile(File input) throws MalformedSubtitlesException
+	{
+		try
+		{
+			return fromStream(new FileInputStream(input));
+		}
+		catch (FileNotFoundException e)
+		{
+	    	// TODO log
+	    	e.printStackTrace();
+	    	return null;
+		}
+	}
+	
+	@Override
+	public File toFile(SubtitlesContainer container, File output) throws SubtitlesGenerationException
+	{
+		try
+		{
+			toStream(container, new FileOutputStream(output));
+			return output;
+		}
+		catch (FileNotFoundException e)
+		{
+	    	// TODO log
+	    	e.printStackTrace();
+	    	return null;
+		}
+	}
+	
+	public OutputStream toStream(SubtitlesContainer container, OutputStream output) throws SubtitlesGenerationException
 	{
 		try
 		{
 			subtitlesWriter = new PrintWriter(output);
 			container.accept(this);
 			return output;
-	    }
-	    catch (IOException e)
-	    {
-	    	// TODO log
-	    	return null;
 	    }
 		finally
 		{
@@ -100,13 +128,13 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	}
 	
 	@Override
-	public void visit(SubtitlesContainer container) throws FileGenerationException
+	public void visit(SubtitlesContainer container) throws SubtitlesGenerationException
 	{
 		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
 	}
 
 	@Override
-	public void visit(Caption caption) throws FileGenerationException
+	public void visit(Caption caption) throws SubtitlesGenerationException
 	{
 		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
 	}

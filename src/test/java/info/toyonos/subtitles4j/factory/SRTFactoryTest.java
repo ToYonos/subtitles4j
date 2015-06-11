@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import info.toyonos.subtitles4J.SubtitlesFileHandler;
 import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
-import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile.Type;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 
@@ -43,8 +42,8 @@ public class SRTFactoryTest
 	}
 
 	@Test
-	@SubtitlesFile(type=Type.SRT, name="test1")
-	public void testFromFileOk() throws MalformedFileException
+	@SubtitlesFile(type=SubtitlesType.SRT, name="test1")
+	public void testFromFileOk() throws MalformedSubtitlesException
 	{
 		SubtitlesContainer container = factory.fromFile(subtitlesFileHandler.getFile());
 
@@ -84,30 +83,30 @@ public class SRTFactoryTest
 		));
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test2")
-	public void testFromFileKoBadIndex() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.SRT, name="test2")
+	public void testFromFileKoBadIndex() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test3")
-	public void testFromFileKoBadTimestamp() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.SRT, name="test3")
+	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
-	@Test(expected=MalformedFileException.class)
-	@SubtitlesFile(type=Type.SRT, name="test4")
-	public void testFromFileKoEndOfFile() throws MalformedFileException
+	@Test(expected=MalformedSubtitlesException.class)
+	@SubtitlesFile(type=SubtitlesType.SRT, name="test4")
+	public void testFromFileKoEndOfFile() throws MalformedSubtitlesException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test
-	@SubtitlesFile(type=Type.SRT, name={"expected1", "expected2"})
-	public void testToFileOk() throws IOException, FileGenerationException
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"expected1", "expected2"})
+	public void testToFileOk() throws IOException, SubtitlesGenerationException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 		container.addCaption(0, 123, Arrays.asList("This", "is", "a", "test"));

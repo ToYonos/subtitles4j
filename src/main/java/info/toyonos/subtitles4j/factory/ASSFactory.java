@@ -7,6 +7,7 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class ASSFactory extends AbstractFormatFactory
 	}
 	
 	@Override
-	public SubtitlesContainer fromFile(File input) throws MalformedFileException
+	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 
@@ -100,7 +101,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    	Config conf = new Config();
 	    	conf.setEscape(false);
 	    	iniFile.setConfig(conf);
-	    	iniFile.load(new FileReader(input));
+	    	iniFile.load(input);
 
 	    	// ### Script Info section : metadata ###
 	    	Section scriptInfoSection = getSection(iniFile, SCRIPT_INFO);
@@ -114,7 +115,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    	// Type verification
 	    	if (!SCRIPT_TYPE.equals(scriptInfoSection.get(SCRIPT_INFO_TYPE)))
 	    	{
-	    		throw new MalformedFileException(String.format(
+	    		throw new MalformedSubtitlesException(String.format(
 	    			"[Script Info] : invalid value for %s, expected '%s', found '%s',",
 	    			SCRIPT_INFO_TYPE,
 	    			SCRIPT_TYPE,
@@ -195,7 +196,7 @@ public class ASSFactory extends AbstractFormatFactory
 	    		// Checking the style
 	    		if (container.getStyles().get(styleName) == null)
 	    		{
-	    			throw new MalformedFileException("[Events] : the style '" + styleName + "' is not defined");
+	    			throw new MalformedSubtitlesException("[Events] : the style '" + styleName + "' is not defined");
 	    		}
 	    		
 	        	// Adding the caption
@@ -212,25 +213,25 @@ public class ASSFactory extends AbstractFormatFactory
 	    }
 	}
 	
-	private int getIndex(List<String> format, String key) throws MalformedFileException
+	private int getIndex(List<String> format, String key) throws MalformedSubtitlesException
 	{
 		int idx = format.indexOf(key);
 		if (idx == -1)
 		{
-			throw new MalformedFileException("[Events] : missing '" + key.toLowerCase() + "' key in format");
+			throw new MalformedSubtitlesException("[Events] : missing '" + key.toLowerCase() + "' key in format");
 		}
 		return idx;
 	}
 	
-	private Section getSection(Ini iniFile, String sectionName) throws MalformedFileException 
+	private Section getSection(Ini iniFile, String sectionName) throws MalformedSubtitlesException 
 	{
 		Section section = iniFile.get(sectionName);
-		if (section == null) throw new MalformedFileException("Missing section [" + sectionName + "]");
+		if (section == null) throw new MalformedSubtitlesException("Missing section [" + sectionName + "]");
 		return section;
 	}
 
 	@Override
-	public void visit(SubtitlesContainer container) throws FileGenerationException
+	public void visit(SubtitlesContainer container) throws SubtitlesGenerationException
 	{
 		super.visit(container);
 		
@@ -281,7 +282,7 @@ public class ASSFactory extends AbstractFormatFactory
 		);
 	}
 	
-	private void printStyleValue(StyleProperty property, Map<StyleProperty, String> styleValues) throws FileGenerationException
+	private void printStyleValue(StyleProperty property, Map<StyleProperty, String> styleValues) throws SubtitlesGenerationException
 	{
 		StyleMapping mapping = STYLE_MAPPING.get(property);
 		String value = styleValues.get(property);
@@ -309,12 +310,12 @@ public class ASSFactory extends AbstractFormatFactory
 		else
 		{
 			// Mandatory field with no value
-			throw new FileGenerationException("The style property " + property + " does not have any value available");
+			throw new SubtitlesGenerationException("The style property " + property + " does not have any value available");
 		}
 	}
 
 	@Override
-	public void visit(Caption caption) throws FileGenerationException
+	public void visit(Caption caption) throws SubtitlesGenerationException
 	{
 		super.visit(caption);
 		

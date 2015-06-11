@@ -1,6 +1,6 @@
 package info.toyonos.subtitles4j.model;
 
-import info.toyonos.subtitles4j.factory.FileGenerationException;
+import info.toyonos.subtitles4j.factory.SubtitlesGenerationException;
 import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 /**
@@ -14,7 +14,7 @@ public interface Visitable
 	/**
 	 * Accept the visitor within the object
 	 * @param visitor The <code>SubtitlesVisitor</code> instance
-	 * @throws FileGenerationException
+	 * @throws SubtitlesGenerationException
 	 */
-	public void accept(SubtitlesVisitor visitor) throws FileGenerationException;
+	public void accept(SubtitlesVisitor visitor) throws SubtitlesGenerationException;
 }

@@ -3,9 +3,9 @@ package info.toyonos.subtitles4j.factory;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,14 +22,12 @@ public class SRTFactory extends AbstractFormatFactory
 	private int index;
 	
 	@Override
-	public SubtitlesContainer fromFile(File input) throws MalformedFileException
+	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
-		LineNumberReader reader = null;
-	    try
-	    {
-	    	reader = new LineNumberReader(new FileReader(input));
 
+	    try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(input)))
+	    {
 	        String line = null;
 	        int i = 1;
 	        
@@ -76,19 +74,15 @@ public class SRTFactory extends AbstractFormatFactory
 	    	e.printStackTrace();
 	    	return null;
 	    }
-	    finally
-	    {
-	       try { if (reader != null) reader.close(); } catch (IOException e) {}
-	    } 
 	}
-	
-	private MalformedFileException unexpectedEndOfFile(String message) 
+		
+	private MalformedSubtitlesException unexpectedEndOfFile(String message) 
 	{
-		return new MalformedFileException("Unexpected end of file : " + message);
+		return new MalformedSubtitlesException("Unexpected end of file : " + message);
 	}
 	
 	@Override
-	public void visit(SubtitlesContainer container) throws FileGenerationException
+	public void visit(SubtitlesContainer container) throws SubtitlesGenerationException
 	{
 		super.visit(container);
 
@@ -97,7 +91,7 @@ public class SRTFactory extends AbstractFormatFactory
 	}
 
 	@Override
-	public void visit(Caption caption) throws FileGenerationException
+	public void visit(Caption caption) throws SubtitlesGenerationException
 	{
 		super.visit(caption);
 		

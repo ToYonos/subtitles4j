@@ -1,5 +1,7 @@
 package info.toyonos.subtitles4J;
 
+import info.toyonos.subtitles4j.factory.SubtitlesType;
+
 import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -79,10 +81,8 @@ public class SubtitlesFileHandler implements TestRule
 	@Target(value = {ElementType.METHOD})
 	public @interface SubtitlesFile
 	{
-		public enum Type {SRT, ASS};
-
 		public String[] name();
 		
-		public Type type();
+		public SubtitlesType type();
 	}
 }
