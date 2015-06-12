@@ -43,7 +43,7 @@ public class SRTFactoryTest
 
 	@Test
 	@SubtitlesFile(type=SubtitlesType.SRT, name="test1")
-	public void testFromFileOk() throws MalformedSubtitlesException
+	public void testFromFileOk() throws MalformedSubtitlesException, IOException
 	{
 		SubtitlesContainer container = factory.fromFile(subtitlesFileHandler.getFile());
 
@@ -85,21 +85,21 @@ public class SRTFactoryTest
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.SRT, name="test2")
-	public void testFromFileKoBadIndex() throws MalformedSubtitlesException
+	public void testFromFileKoBadIndex() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.SRT, name="test3")
-	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException
+	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.SRT, name="test4")
-	public void testFromFileKoEndOfFile() throws MalformedSubtitlesException
+	public void testFromFileKoEndOfFile() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}

@@ -6,6 +6,7 @@ import info.toyonos.subtitles4j.factory.SubtitlesType;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -19,7 +20,7 @@ public class Subtitles4jUtils
 		return SubtitlesType.fromExtension(ext);
 	}
 	
-	public static OutputStream shift(InputStream input, OutputStream output, SubtitlesType inputType, int millis) throws Subtitles4jException
+	public static OutputStream shift(InputStream input, OutputStream output, SubtitlesType inputType, int millis) throws Subtitles4jException, IOException
 	{
 		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
 		SubtitlesContainer container = factory.fromStream(input, inputType);
@@ -27,7 +28,7 @@ public class Subtitles4jUtils
 		return factory.toSubtitlesType(container, output, inputType);
 	}
 	
-	public static File shift(File input, int millis) throws Subtitles4jException
+	public static File shift(File input, int millis) throws Subtitles4jException, IOException
 	{
 		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
 		SubtitlesContainer container = factory.fromFile(input);

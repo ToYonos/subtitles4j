@@ -4,8 +4,6 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.Caption;
 import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -91,126 +89,117 @@ public class ASSFactory extends AbstractFormatFactory
 	}
 	
 	@Override
-	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException
+	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException, IOException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 
-	    try
-	    {
-	    	Ini iniFile = new Ini();
-	    	Config conf = new Config();
-	    	conf.setEscape(false);
-	    	iniFile.setConfig(conf);
-	    	iniFile.load(input);
+    	Ini iniFile = new Ini();
+    	Config conf = new Config();
+    	conf.setEscape(false);
+    	iniFile.setConfig(conf);
+    	iniFile.load(input);
 
-	    	// ### Script Info section : metadata ###
-	    	Section scriptInfoSection = getSection(iniFile, SCRIPT_INFO);
-	    	
-	    	// Title
-	    	container.setTitle(scriptInfoSection.get(SCRIPT_INFO_TITLE));
-	    	
-	    	// Author
-	    	container.setAuthor(scriptInfoSection.get(SCRIPT_INFO_AUTHOR));
-	    	
-	    	// Type verification
-	    	if (!SCRIPT_TYPE.equals(scriptInfoSection.get(SCRIPT_INFO_TYPE)))
+    	// ### Script Info section : metadata ###
+    	Section scriptInfoSection = getSection(iniFile, SCRIPT_INFO);
+    	
+    	// Title
+    	container.setTitle(scriptInfoSection.get(SCRIPT_INFO_TITLE));
+    	
+    	// Author
+    	container.setAuthor(scriptInfoSection.get(SCRIPT_INFO_AUTHOR));
+    	
+    	// Type verification
+    	if (!SCRIPT_TYPE.equals(scriptInfoSection.get(SCRIPT_INFO_TYPE)))
+    	{
+    		throw new MalformedSubtitlesException(String.format(
+    			"[Script Info] : invalid value for %s, expected '%s', found '%s',",
+    			SCRIPT_INFO_TYPE,
+    			SCRIPT_TYPE,
+    			scriptInfoSection.get(SCRIPT_INFO_TYPE)));
+    	}	    	
+    	
+    	// Timer
+    	float timer = Float.parseFloat(scriptInfoSection.get(SCRIPT_INFO_TIMER, "100").replace(',', '.'));
+    	
+    	// ### V4+ Styles section ###
+    	Section stylesSection = getSection(iniFile, V4PLUS_STYLE);
+    	String[] styleFormat = stylesSection.get(FORMAT).split("\\s*,\\s*");
+    	
+    	BiMap<StyleMapping, StyleProperty> mappings = STYLE_MAPPING.inverse();
+    	// For each defined style
+  		for (int i = 0; i < stylesSection.length(STYLE); i++)
+    	{
+  			String[] styleValues = stylesSection.get(STYLE, i).split(",");
+  			Map<StyleProperty, String> styleValuesMap = null;
+	    	// For each value of this style
+	    	for (int j = 0; j < styleFormat.length; j++)
 	    	{
-	    		throw new MalformedSubtitlesException(String.format(
-	    			"[Script Info] : invalid value for %s, expected '%s', found '%s',",
-	    			SCRIPT_INFO_TYPE,
-	    			SCRIPT_TYPE,
-	    			scriptInfoSection.get(SCRIPT_INFO_TYPE)));
-	    	}	    	
-	    	
-	    	// Timer
-	    	float timer = Float.parseFloat(scriptInfoSection.get(SCRIPT_INFO_TIMER, "100").replace(',', '.'));
-	    	
-	    	// ### V4+ Styles section ###
-	    	Section stylesSection = getSection(iniFile, V4PLUS_STYLE);
-	    	String[] styleFormat = stylesSection.get(FORMAT).split("\\s*,\\s*");
-	    	
-	    	BiMap<StyleMapping, StyleProperty> mappings = STYLE_MAPPING.inverse();
-	    	// For each defined style
-	  		for (int i = 0; i < stylesSection.length(STYLE); i++)
-	    	{
-	  			String[] styleValues = stylesSection.get(STYLE, i).split(",");
-	  			Map<StyleProperty, String> styleValuesMap = null;
-		    	// For each value of this style
-		    	for (int j = 0; j < styleFormat.length; j++)
-		    	{
-		    		StyleProperty property = mappings.get(styleFormat[j]);
-		    		if (property != null)
-		    		{
-		    			if (property == StyleProperty.NAME)
-		    			{
-		    				// The style's key
-		    				styleValuesMap = new HashMap<SubtitlesContainer.StyleProperty, String>();
-		    				container.getStyles().put(styleValues[j], styleValuesMap);
-		    			}
-		    			else
-		    			{
-		    				// Regular property
-		    				if (styleValuesMap != null)
-		    				{
-		    					styleValuesMap.put(property, styleValues[j]);
-		    				}
-		    				else
-		    				{
-		    					// Key has not been initialized
-		    					// TODO log undefined style, no key
-		    					break;
-		    				}
-		    			}
-		    		}
-		    		else
-		    		{
-		    			// TODO log unknow property, ignored
-		    		}
-		    	}
-	    	}
-	    	
-	    	// ### Event section : captions ###
-	    	Section eventsSection = getSection(iniFile, EVENTS);
-	    	List<String> eventFormat = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
-
-    		// Start index
-    		int idxStart = getIndex(eventFormat, FORMAT_START);
-  
-    		// End index
-    		int idxEnd = getIndex(eventFormat, FORMAT_END);
-    		
-    		// Style index
-    		int idxStyle = getIndex(eventFormat, FORMAT_STYLE);
-    		
-    		// Text
-    		int idxText = getIndex(eventFormat, FORMAT_TEXT);
-    		
-    		for (int i = 0; i < eventsSection.length(DIALOGUE); i++)
-	    	{
-	    		List<String> dialogue = Arrays.asList(eventsSection.get(DIALOGUE, i).split(","));
-	    		long start = (long) (getMilliseconds(dialogue.get(idxStart) + "0") * timer / 100);
-	    		long end = (long) (getMilliseconds(dialogue.get(idxEnd) + "0") * timer / 100);
-	    		String styleName = dialogue.get(idxStyle);
-	    		List<String> subtitlesLines = Arrays.asList(dialogue.get(idxText).replaceAll("\\{.*?\\}", "").split("\\\\n|\\\\N"));
-	    		
-	    		// Checking the style
-	    		if (container.getStyles().get(styleName) == null)
+	    		StyleProperty property = mappings.get(styleFormat[j]);
+	    		if (property != null)
 	    		{
-	    			throw new MalformedSubtitlesException("[Events] : the style '" + styleName + "' is not defined");
+	    			if (property == StyleProperty.NAME)
+	    			{
+	    				// The style's key
+	    				styleValuesMap = new HashMap<SubtitlesContainer.StyleProperty, String>();
+	    				container.getStyles().put(styleValues[j], styleValuesMap);
+	    			}
+	    			else
+	    			{
+	    				// Regular property
+	    				if (styleValuesMap != null)
+	    				{
+	    					styleValuesMap.put(property, styleValues[j]);
+	    				}
+	    				else
+	    				{
+	    					// Key has not been initialized
+	    					// TODO log undefined style, no key
+	    					break;
+	    				}
+	    			}
 	    		}
-	    		
-	        	// Adding the caption
-	        	container.addCaption(start, end, styleName, subtitlesLines);
+	    		else
+	    		{
+	    			// TODO log unknow property, ignored
+	    		}
 	    	}
+    	}
+    	
+    	// ### Event section : captions ###
+    	Section eventsSection = getSection(iniFile, EVENTS);
+    	List<String> eventFormat = Arrays.asList(eventsSection.get(FORMAT).split("\\s*,\\s*"));
 
-		    return container;
-	    }
-	    catch (IOException e)
-	    {
-	    	// TODO log
-	    	e.printStackTrace();
-	    	return null;
-	    }
+		// Start index
+		int idxStart = getIndex(eventFormat, FORMAT_START);
+
+		// End index
+		int idxEnd = getIndex(eventFormat, FORMAT_END);
+		
+		// Style index
+		int idxStyle = getIndex(eventFormat, FORMAT_STYLE);
+		
+		// Text
+		int idxText = getIndex(eventFormat, FORMAT_TEXT);
+		
+		for (int i = 0; i < eventsSection.length(DIALOGUE); i++)
+    	{
+    		List<String> dialogue = Arrays.asList(eventsSection.get(DIALOGUE, i).split(","));
+    		long start = (long) (getMilliseconds(dialogue.get(idxStart) + "0") * timer / 100);
+    		long end = (long) (getMilliseconds(dialogue.get(idxEnd) + "0") * timer / 100);
+    		String styleName = dialogue.get(idxStyle);
+    		List<String> subtitlesLines = Arrays.asList(dialogue.get(idxText).replaceAll("\\{.*?\\}", "").split("\\\\n|\\\\N"));
+    		
+    		// Checking the style
+    		if (container.getStyles().get(styleName) == null)
+    		{
+    			throw new MalformedSubtitlesException("[Events] : the style '" + styleName + "' is not defined");
+    		}
+    		
+        	// Adding the caption
+        	container.addCaption(start, end, styleName, subtitlesLines);
+    	}
+
+	    return container;
 	}
 	
 	private int getIndex(List<String> format, String key) throws MalformedSubtitlesException

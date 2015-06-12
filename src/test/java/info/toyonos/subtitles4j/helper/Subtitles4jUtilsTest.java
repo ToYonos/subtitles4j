@@ -7,7 +7,6 @@ import info.toyonos.subtitles4j.factory.SubtitlesType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -25,13 +24,37 @@ public class Subtitles4jUtilsTest
 
 	@Test
 	@SubtitlesFile(type=SubtitlesType.SRT, name={"test1", "shifted1"})
-	public void testFromFileOk() throws Subtitles4jException, IOException 
+	public void testShiftPositive() throws Subtitles4jException, IOException 
 	{
 		File inputFile = folder.newFile("tmp.srt");
 		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
 		Assert.assertEquals(
 			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, 2500)),
 			FileUtils.readLines(subtitlesFileHandler.getFile("shifted1"))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test1", "shifted2"})
+	public void testShiftNegative() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -1000)),
+			FileUtils.readLines(subtitlesFileHandler.getFile("shifted2"))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test1", "shifted3"})
+	public void testShiftNegativeZeroValue() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -2500)),
+			FileUtils.readLines(subtitlesFileHandler.getFile("shifted3"))
 		);
 	}
 }

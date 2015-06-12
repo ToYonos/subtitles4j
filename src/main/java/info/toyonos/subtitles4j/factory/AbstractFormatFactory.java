@@ -6,8 +6,8 @@ import info.toyonos.subtitles4j.model.SubtitlesContainer.StyleProperty;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
@@ -82,34 +82,16 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	}
 	
 	@Override
-	public SubtitlesContainer fromFile(File input) throws MalformedSubtitlesException
+	public SubtitlesContainer fromFile(File input) throws MalformedSubtitlesException, IOException
 	{
-		try
-		{
-			return fromStream(new FileInputStream(input));
-		}
-		catch (FileNotFoundException e)
-		{
-	    	// TODO log
-	    	e.printStackTrace();
-	    	return null;
-		}
+		return fromStream(new FileInputStream(input));
 	}
 	
 	@Override
-	public File toFile(SubtitlesContainer container, File output) throws SubtitlesGenerationException
+	public File toFile(SubtitlesContainer container, File output) throws SubtitlesGenerationException, IOException
 	{
-		try
-		{
-			toStream(container, new FileOutputStream(output));
-			return output;
-		}
-		catch (FileNotFoundException e)
-		{
-	    	// TODO log
-	    	e.printStackTrace();
-	    	return null;
-		}
+		toStream(container, new FileOutputStream(output));
+		return output;
 	}
 	
 	public OutputStream toStream(SubtitlesContainer container, OutputStream output) throws SubtitlesGenerationException

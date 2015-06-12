@@ -119,49 +119,49 @@ public class ASSFactoryTest
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test2")
-	public void testFromFileKoMissingInfoSection() throws MalformedSubtitlesException
+	public void testFromFileKoMissingInfoSection() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test3")
-	public void testFromFileKoMissingStyleSection() throws MalformedSubtitlesException
+	public void testFromFileKoMissingStyleSection() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test4")
-	public void testFromFileKoMissingEventSection() throws MalformedSubtitlesException
+	public void testFromFileKoMissingEventSection() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test5")
-	public void testFromFileKoMissingEventKey() throws MalformedSubtitlesException
+	public void testFromFileKoMissingEventKey() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test6")
-	public void testFromFileKoUndefinedStyle() throws MalformedSubtitlesException
+	public void testFromFileKoUndefinedStyle() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test7")
-	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException
+	public void testFromFileKoBadTimestamp() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}
 	
 	@Test(expected=MalformedSubtitlesException.class)
 	@SubtitlesFile(type=SubtitlesType.ASS, name="test8")
-	public void testFromFileKoInvalidScriptType() throws MalformedSubtitlesException
+	public void testFromFileKoInvalidScriptType() throws MalformedSubtitlesException, IOException
 	{
 		factory.fromFile(subtitlesFileHandler.getFile());
 	}

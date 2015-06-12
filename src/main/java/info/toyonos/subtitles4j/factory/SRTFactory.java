@@ -22,7 +22,7 @@ public class SRTFactory extends AbstractFormatFactory
 	private int index;
 	
 	@Override
-	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException
+	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException, IOException
 	{
 		SubtitlesContainer container = new SubtitlesContainer();
 
@@ -45,7 +45,7 @@ public class SRTFactory extends AbstractFormatFactory
 	        		int foundIndex = Integer.parseInt(line);
 	        		if (foundIndex != i++) throw malformedFileException("Unexpected index %d", reader.getLineNumber(), foundIndex);
 	        	}
-	        	
+
 	        	// Timestamps
 	        	String timestamps = reader.readLine();
 	        	if (timestamps == null) throw unexpectedEndOfFile("timestamps declaration was expected here");
@@ -67,12 +67,6 @@ public class SRTFactory extends AbstractFormatFactory
 	        }
 
 		    return container;
-	    }
-	    catch (IOException e)
-	    {
-	    	// TODO log
-	    	e.printStackTrace();
-	    	return null;
 	    }
 	}
 		
