@@ -88,6 +88,8 @@ public class ASSFactory extends AbstractFormatFactory
 		.build();
 	}
 	
+	protected ASSFactory() {}
+	
 	@Override
 	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException, IOException
 	{
@@ -153,14 +155,15 @@ public class ASSFactory extends AbstractFormatFactory
 	    				else
 	    				{
 	    					// Key has not been initialized
-	    					// TODO log undefined style, no key
+	    					logger.warn("The current style has no name defined, ignoring this property : {}", property);
 	    					break;
 	    				}
 	    			}
 	    		}
 	    		else
 	    		{
-	    			// TODO log unknow property, ignored
+	    			// Unknown property
+	    			logger.warn("The property {} is unknown, ignoring it", property);
 	    		}
 	    	}
     	}
@@ -198,6 +201,8 @@ public class ASSFactory extends AbstractFormatFactory
         	// Adding the caption
         	container.addCaption(start, end, styleName, subtitlesLines);
     	}
+
+		logger.trace("The subtitles source has been read with success, {} captions read", container.getCaptions().size());
 
 	    return container;
 	}

@@ -14,12 +14,28 @@ import org.apache.commons.io.FilenameUtils;
 
 public class Subtitles4jUtils
 {
-	public static SubtitlesType getType(File subtitlesFile)
+	/**
+	 * Extract the <code>SubtitlesType</code> from a <code>File</code>, based on its extension
+	 * @param subtitlesFile the input <code>File</code>
+	 * @return the matching <code>SubtitlesType</code> or null if not supported
+	 */
+	public static SubtitlesType getType(String subtitlesFileName)
 	{
-		String ext = FilenameUtils.getExtension(subtitlesFile.getName());
+		String ext = FilenameUtils.getExtension(subtitlesFileName);
 		return SubtitlesType.fromExtension(ext);
 	}
 	
+	/**
+	 * <p>Shift the timestamps of an input subtitles stream</p>
+	 * <p>It can be done in both ways, adding or removing milliseconds. If a timestamp become lower than zero, it is set to zero.</p>
+	 * @param input the <code>InputStream</code> on the subtitles source
+	 * @param output the <code>OutputStream</code> containing the modified subtitles
+	 * @param inputType the <code>SubtitlesType</code> of the input 
+	 * @param millis the time in millisecond to be added to each caption, can be negative
+	 * @return the <code>OutputStream</code> containing the modified subtitles
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
 	public static OutputStream shift(InputStream input, OutputStream output, SubtitlesType inputType, int millis) throws Subtitles4jException, IOException
 	{
 		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
@@ -28,11 +44,20 @@ public class Subtitles4jUtils
 		return factory.toSubtitlesType(container, output, inputType);
 	}
 	
+	/**
+	 * <p>Shift the timestamps of an input subtitles file</p>
+	 * <p>It can be done in both ways, adding or removing milliseconds. If a timestamp become lower than zero, it is set to zero.</p>
+	 * @param input the input subtitles <code>File</code> 
+	 * @param millis the time in millisecond to be added to each caption, can be negative
+	 * @return the modified <code>File</code>, which is the same as the input
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
 	public static File shift(File input, int millis) throws Subtitles4jException, IOException
 	{
 		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
 		SubtitlesContainer container = factory.fromFile(input);
 		container.shiftTime(millis);
-		return factory.toSubtitlesType(container, input, getType(input));
+		return factory.toSubtitlesType(container, input, getType(input.getName()));
 	}
 }

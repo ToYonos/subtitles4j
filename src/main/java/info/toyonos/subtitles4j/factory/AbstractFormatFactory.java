@@ -14,13 +14,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFormatFactory implements SubtitlesVisitor, SubtitlesFactory
 {
 	private static final String UTF8_BOM = "\uFEFF";
+	
+	protected static final Logger logger = LoggerFactory.getLogger(AbstractFormatFactory.class);
 	
 	protected PrintWriter subtitlesWriter;
 	
@@ -28,16 +31,6 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	 * @return The <code>SimpleDateFormat</code> using by timestamps
 	 */
 	protected abstract SimpleDateFormat getTimestampDateFormat();
-	
-	/**
-	 * @return The <code>Map</code> which associate a <code>StyleProperty</code> with a label
-	 */
-	// TODO useless ?
-	protected Map<StyleProperty, String> getStyleMapping()
-	{
-		// No style by default
-		return null;
-	}
 	
 	protected MalformedSubtitlesException malformedFileException(String content, Integer lineNumber, Object... args)
 	{
@@ -104,6 +97,7 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	    }
 		finally
 		{
+			logger.trace("SubtitlesContainer has been transformed with success");
 			subtitlesWriter.close();
 			subtitlesWriter = null;
 	    } 
@@ -112,12 +106,14 @@ public abstract class AbstractFormatFactory implements SubtitlesVisitor, Subtitl
 	@Override
 	public void visit(SubtitlesContainer container) throws SubtitlesGenerationException
 	{
+		logger.trace("Visiting SubtitlesContainer");
 		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
 	}
 
 	@Override
 	public void visit(Caption caption) throws SubtitlesGenerationException
 	{
+		logger.trace("Visiting Caption");
 		if (subtitlesWriter == null) throw new IllegalStateException("You can't call visit directly from " + this.getClass().getSimpleName());
 	}
 	

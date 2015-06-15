@@ -21,6 +21,8 @@ public class SRTFactory extends AbstractFormatFactory
 	
 	private int index;
 	
+	protected SRTFactory() {}
+	
 	@Override
 	public SubtitlesContainer fromStream(InputStream input) throws MalformedSubtitlesException, IOException
 	{
@@ -66,6 +68,8 @@ public class SRTFactory extends AbstractFormatFactory
 	        	container.addCaption(start, end, subtitlesLines);
 	        }
 
+	        logger.trace("The subtitles source has been read with success, {} captions read", container.getCaptions().size());
+	        
 		    return container;
 	    }
 	}
