@@ -1,4 +1,4 @@
-package info.toyonos.subtitles4J;
+package info.toyonos.subtitles4j;
 
 import info.toyonos.subtitles4j.factory.SubtitlesType;
 

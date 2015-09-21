@@ -1,7 +1,7 @@
 package info.toyonos.subtitles4j.helper;
 
-import info.toyonos.subtitles4J.SubtitlesFileHandler;
-import info.toyonos.subtitles4J.SubtitlesFileHandler.SubtitlesFile;
+import info.toyonos.subtitles4j.SubtitlesFileHandler;
+import info.toyonos.subtitles4j.SubtitlesFileHandler.SubtitlesFile;
 import info.toyonos.subtitles4j.factory.Subtitles4jException;
 import info.toyonos.subtitles4j.factory.SubtitlesType;
 
