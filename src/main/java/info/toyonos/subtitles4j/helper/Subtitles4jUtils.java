@@ -29,14 +29,14 @@ public class Subtitles4jUtils
 	 * <p>Shift the timestamps of an input subtitles stream</p>
 	 * <p>It can be done in both ways, adding or removing milliseconds. If a timestamp become lower than zero, it is set to zero.</p>
 	 * @param input the <code>InputStream</code> on the subtitles source
-	 * @param output the <code>OutputStream</code> containing the modified subtitles
-	 * @param inputType the <code>SubtitlesType</code> of the input 
+	 * @param inputType the <code>SubtitlesType</code> of the input
+	 * @param output the <code>OutputStream</code> containing the modified subtitles 
 	 * @param millis the time in millisecond to be added to each caption, can be negative
 	 * @return the <code>OutputStream</code> containing the modified subtitles
 	 * @throws Subtitles4jException if an error occurs during the operation
 	 * @throws IOException if any IO error occurs
 	 */
-	public static OutputStream shift(InputStream input, OutputStream output, SubtitlesType inputType, int millis) throws Subtitles4jException, IOException
+	public static OutputStream shift(InputStream input, SubtitlesType inputType, OutputStream output, int millis) throws Subtitles4jException, IOException
 	{
 		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
 		SubtitlesContainer container = factory.fromStream(input, inputType);
