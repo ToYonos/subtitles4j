@@ -3,7 +3,6 @@ package info.toyonos.subtitles4j.factory;
 import info.toyonos.subtitles4j.helper.Subtitles4jUtils;
 import info.toyonos.subtitles4j.model.SubtitlesContainer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,12 +110,13 @@ public class Subtitles4jFactory
 	/**
 	 * Convert an input <code>File</code> to a target <code>SubtitlesType</code> 
 	 * @param input the input <code>File</code>
+	 * @param output the output <code>File</code>
 	 * @param outputType the new wished <code>SubtitlesType</code> 
-	 * @return the modified <code>File</code>, which is the same as the input 
+	 * @return the modified output <code>File</code> 
 	 * @throws Subtitles4jException if an error occurs during the conversion
 	 * @throws IOException if any IO error occurs
 	 */
-	public File toSubtitlesType(File input, SubtitlesType outputType) throws Subtitles4jException, IOException
+	public File toSubtitlesType(File input, File output, SubtitlesType outputType) throws Subtitles4jException, IOException
 	{
 		String ext = FilenameUtils.getExtension(input.getName());
 		if (outputType.hasExtension(ext))
@@ -126,28 +126,22 @@ public class Subtitles4jFactory
 		}
 		else
 		{
-			return factories.get(outputType).toFile(
-				fromFile(input),
-				new File(
-					input.getParent(),
-					FilenameUtils.getBaseName(input.getName()) + "." + outputType.getExtensions().iterator().next()
-				)
-			);
+			return factories.get(outputType).toFile(fromFile(input), output);
 		}
 	}
 	
 	/**
 	 * Convert an <code>InputStream</code> to a target <code>SubtitlesType</code> 
 	 * @param input the <code>InputStream</code>
-	 * @param inputType the <code>SubtitlesType</code> of the input 
+	 * @param inputType the <code>SubtitlesType</code> of the input
+	 * @param output the <code>OutputStream</code> 
 	 * @param outputType the new wished <code>SubtitlesType</code>
 	 * @return the converted code>OutputStream</code>
 	 * @throws Subtitles4jException if an error occurs during the conversion
 	 * @throws IOException if any IO error occurs
 	 */
-	public OutputStream toSubtitlesType(InputStream input, SubtitlesType inputType, SubtitlesType outputType) throws Subtitles4jException, IOException
+	public OutputStream toSubtitlesType(InputStream input, SubtitlesType inputType, OutputStream output, SubtitlesType outputType) throws Subtitles4jException, IOException
 	{
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		if (outputType == inputType)
 		{
 			// Same input/output type
@@ -195,34 +189,34 @@ public class Subtitles4jFactory
 	}
 	
 	/**
-	 * Equivalent to {@link #toSubtitlesType(File, SubtitlesType)} for <code>SubtitlesType.SRT</code>
+	 * Equivalent to {@link #toSubtitlesType(File, File, SubtitlesType)} for <code>SubtitlesType.SRT</code>
 	 */
-	public File toSRT(File input) throws Subtitles4jException, IOException
+	public File toSRT(File input, File output) throws Subtitles4jException, IOException
 	{
-		return toSubtitlesType(input, SubtitlesType.SRT);
+		return toSubtitlesType(input, output, SubtitlesType.SRT);
 	}
 	
 	/**
-	 * Equivalent to {@link #toSubtitlesType(InputStream, SubtitlesType, SubtitlesType)} for <code>SubtitlesType.SRT</code> as output type
+	 * Equivalent to {@link #toSubtitlesType(InputStream, SubtitlesType, OutputStream, SubtitlesType)} for <code>SubtitlesType.SRT</code>
 	 */
-	public OutputStream toSRT(InputStream input, SubtitlesType inputType) throws Subtitles4jException, IOException
+	public OutputStream toSRT(InputStream input, SubtitlesType inputType, OutputStream output) throws Subtitles4jException, IOException
 	{
-		return toSubtitlesType(input, inputType, SubtitlesType.SRT);
+		return toSubtitlesType(input, inputType, output, SubtitlesType.SRT);
 	}
 	
 	/**
-	 * Equivalent to {@link #toSubtitlesType(File, SubtitlesType)} for <code>SubtitlesType.ASS</code>
+	 * Equivalent to {@link #toSubtitlesType(File, File, SubtitlesType)} for <code>SubtitlesType.ASS</code>
 	 */
-	public File toASS(File input) throws Subtitles4jException, IOException
+	public File toASS(File input, File output) throws Subtitles4jException, IOException
 	{
-		return toSubtitlesType(input, SubtitlesType.ASS);
+		return toSubtitlesType(input, output, SubtitlesType.ASS);
 	}
 	
 	/**
-	 * Equivalent to {@link #toSubtitlesType(InputStream, SubtitlesType, SubtitlesType)} for <code>SubtitlesType.ASS</code> as output type
+	 * Equivalent to {@link #toSubtitlesType(InputStream, SubtitlesType, OutputStream, SubtitlesType)} for <code>SubtitlesType.ASS</code>
 	 */
-	public OutputStream toASS(InputStream input, SubtitlesType inputType) throws Subtitles4jException, IOException
+	public OutputStream toASS(InputStream input, SubtitlesType inputType, OutputStream output) throws Subtitles4jException, IOException
 	{
-		return toSubtitlesType(input, inputType, SubtitlesType.ASS);
+		return toSubtitlesType(input, inputType, output, SubtitlesType.ASS);
 	}
 }
