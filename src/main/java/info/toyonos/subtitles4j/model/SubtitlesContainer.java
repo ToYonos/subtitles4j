@@ -5,8 +5,10 @@ import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class SubtitlesContainer implements Visitable
 {
@@ -91,6 +93,10 @@ public class SubtitlesContainer implements Visitable
 		return captions;
 	}
 
+	/**
+	 * Shift the timestamps of the captions
+	 * @param millis the time in millisecond to be added to each caption, can be negative
+	 */
 	public void shiftTime(int millis)
 	{
 		for (Caption caption : captions)
@@ -98,6 +104,31 @@ public class SubtitlesContainer implements Visitable
 			caption.addStart(millis);
 			caption.addEnd(millis);
 		}
+	}
+	
+	/**
+	 * Remove all the captions containing the specified regular expression 
+	 * @param regex the regular expression to which captions are to be matched
+	 * @param caseSensitive true for a case sensitive operation, false otherwise
+	 * @return the number of captions removed
+	 */
+	public int remove(String regex, boolean caseSensitive)
+	{
+		int removedItems = 0;
+		for (Iterator<Caption> i = captions.iterator(); i.hasNext();)
+		{
+			for (String line : i.next().lines)
+			{
+				Pattern p = caseSensitive ? Pattern.compile(regex) : Pattern.compile(regex, Pattern.CASE_INSENSITIVE); 
+				if (p.matcher(line).find())
+				{
+					i.remove();
+					removedItems++;
+					break;
+				}
+			}
+		}
+		return removedItems;
 	}
 	
 	@Override
