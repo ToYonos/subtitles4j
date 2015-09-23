@@ -56,6 +56,14 @@ The utility class `Subtitles4jUtils` allows you to perform operation on subtitle
 // From a File, add 250 ms to every timestamp
 Subtitles4jUtils.shift(inputFile, 250);
 		
-// From an InputStream, rempve 150 ms to every timestamp
+// From an InputStream, remove 150 ms to every timestamp
 Subtitles4jUtils.shift(is, SubtitlesType.SRT, os, -150);
 ```
+
+##### Captions removing
+```java
+// From a File, remove all captions matching the pattern
+Subtitles4jUtils.removeCaptions(inputFile, "some pattern");
+
+// From an InputStream, remove all captions matching the pattern
+Subtitles4jUtils.removeCaptions(is, SubtitlesType.SRT, os, "some pattern");
