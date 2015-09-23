@@ -29,8 +29,8 @@ public class Subtitles4jUtilsTest
 		File inputFile = folder.newFile("tmp.srt");
 		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
 		Assert.assertEquals(
-			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, 2500)),
-			FileUtils.readLines(subtitlesFileHandler.getFile("shifted1"))
+			FileUtils.readLines(subtitlesFileHandler.getFile("shifted1")),
+			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, 2500))
 		);
 	}
 	
@@ -41,8 +41,8 @@ public class Subtitles4jUtilsTest
 		File inputFile = folder.newFile("tmp.srt");
 		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
 		Assert.assertEquals(
-			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -1000)),
-			FileUtils.readLines(subtitlesFileHandler.getFile("shifted2"))
+			FileUtils.readLines(subtitlesFileHandler.getFile("shifted2")),
+			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -1000))
 		);
 	}
 	
@@ -53,8 +53,56 @@ public class Subtitles4jUtilsTest
 		File inputFile = folder.newFile("tmp.srt");
 		FileUtils.copyFile(subtitlesFileHandler.getFile("test1"), inputFile);
 		Assert.assertEquals(
-			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -2500)),
-			FileUtils.readLines(subtitlesFileHandler.getFile("shifted3"))
+			FileUtils.readLines(subtitlesFileHandler.getFile("shifted3")),
+			FileUtils.readLines(Subtitles4jUtils.shift(inputFile, -2500))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test5", "removed1"})
+	public void testRemoveCaptionsSimplePatternCaseSensitive() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test5"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(subtitlesFileHandler.getFile("removed1")),
+			FileUtils.readLines(Subtitles4jUtils.removeCaptions(inputFile, "test"))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test5", "removed2"})
+	public void testRemoveCaptionsRegularPatternCaseSensitive() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test5"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(subtitlesFileHandler.getFile("removed2")),
+			FileUtils.readLines(Subtitles4jUtils.removeCaptions(inputFile, "thi[a-z]+"))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test5", "removed3"})
+	public void testRemoveCaptionsSimplePatternCaseInsensitive() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test5"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(subtitlesFileHandler.getFile("removed3")),
+			FileUtils.readLines(Subtitles4jUtils.removeCaptionsIgnoreCase(inputFile, "test"))
+		);
+	}
+	
+	@Test
+	@SubtitlesFile(type=SubtitlesType.SRT, name={"test5", "removed4"})
+	public void testRemoveCaptionsRegularPatternCaseInsensitive() throws Subtitles4jException, IOException 
+	{
+		File inputFile = folder.newFile("tmp.srt");
+		FileUtils.copyFile(subtitlesFileHandler.getFile("test5"), inputFile);
+		Assert.assertEquals(
+			FileUtils.readLines(subtitlesFileHandler.getFile("removed4")),
+			FileUtils.readLines(Subtitles4jUtils.removeCaptionsIgnoreCase(inputFile, "thi[a-z]+"))
 		);
 	}
 }

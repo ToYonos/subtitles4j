@@ -60,4 +60,74 @@ public class Subtitles4jUtils
 		container.shiftTime(millis);
 		return factory.toSubtitlesType(container, input, getType(input.getName()));
 	}
+	
+	/**
+	 * <p>Remove all the captions containing the specified regular expression, from an input subtitles stream</p>
+	 * <p>For each caption, the search is performed on each line. A match on at least one line is enough to remove the caption</p> 
+	 * @param input the <code>InputStream</code> on the subtitles source
+	 * @param inputType the <code>SubtitlesType</code> of the input
+	 * @param output the <code>OutputStream</code> containing the modified subtitles
+	 * @param regex the regular expression to which captions are to be matched 
+	 * @param caseSensitive true for a case sensitive operation, false otherwise 
+	 * @return the <code>OutputStream</code> containing the modified subtitles
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
+	private static OutputStream removeCaptions(InputStream input, SubtitlesType inputType, OutputStream output, String regex, boolean caseSensitive) throws Subtitles4jException, IOException
+	{
+		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
+		SubtitlesContainer container = factory.fromStream(input, inputType);
+		container.remove(regex, caseSensitive);
+		return factory.toSubtitlesType(container, output, inputType);
+	}
+	
+	/**
+	 * Equivalent to {@link #removeCaptions(InputStream, SubtitlesType, OutputStream, String, boolean)} for a case sensitive search
+	 */
+	public static OutputStream removeCaptions(InputStream input, SubtitlesType inputType, OutputStream output, String regex) throws Subtitles4jException, IOException
+	{
+		return removeCaptions(input, inputType, output, regex, true);
+	}
+
+	/**
+	 * Equivalent to {@link #removeCaptions(InputStream, SubtitlesType, OutputStream, String, boolean)} for a case insensitive search
+	 */
+	public static OutputStream removeCaptionsIgnoreCase(InputStream input, SubtitlesType inputType, OutputStream output, String regex) throws Subtitles4jException, IOException
+	{
+		return removeCaptions(input, inputType, output, regex, false);
+	}
+	
+	/**
+	 * <p>Remove all the captions containing the specified regular expression, from an input subtitles file</p>
+	 * <p>For each caption, the search is performed on each line. A match on at least one line is enough to remove the caption</p>
+	 * @param input the input subtitles <code>File</code> 
+	 * @param regex the regular expression to which captions are to be matched 
+	 * @param caseSensitive true for a case sensitive operation, false otherwise 
+	 * @return the modified <code>File</code>, which is the same as the input
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
+	private static File removeCaptions(File input, String regex, boolean caseSensitive) throws Subtitles4jException, IOException
+	{
+		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
+		SubtitlesContainer container = factory.fromFile(input);
+		container.remove(regex, caseSensitive);
+		return factory.toSubtitlesType(container, input, getType(input.getName()));
+	}
+
+	/**
+	 * Equivalent to {@link #removeCaptions(File, String, boolean)} for a case sensitive search
+	 */
+	public static File removeCaptions(File input, String regex) throws Subtitles4jException, IOException
+	{
+		return removeCaptions(input, regex, true);
+	}
+
+	/**
+	 * Equivalent to {@link #removeCaptions(File, String, boolean)} for a case insensitive search
+	 */
+	public static File removeCaptionsIgnoreCase(File input, String regex) throws Subtitles4jException, IOException
+	{
+		return removeCaptions(input, regex, false);
+	}
 }
