@@ -14,6 +14,24 @@ import org.apache.commons.io.FilenameUtils;
 
 public class Subtitles4jUtils
 {
+	private static final SubtitlesContainerProcessing SHIFTING_PROCESSING = new SubtitlesContainerProcessing()
+	{
+		@Override
+		public void process(SubtitlesContainer container, Object... params)
+		{
+			container.shiftTime((Integer) params[0]);	
+		}
+	};
+	
+	private static final SubtitlesContainerProcessing REMOVING_PROCESSING = new SubtitlesContainerProcessing()
+	{
+		@Override
+		public void process(SubtitlesContainer container, Object... params)
+		{
+			container.remove((String) params[0], (Boolean) params[1]);	
+		}
+	};
+	
 	/**
 	 * Extract the <code>SubtitlesType</code> from a <code>File</code>, based on its extension
 	 * @param subtitlesFile the input <code>File</code>
@@ -38,10 +56,7 @@ public class Subtitles4jUtils
 	 */
 	public static OutputStream shift(InputStream input, SubtitlesType inputType, OutputStream output, int millis) throws Subtitles4jException, IOException
 	{
-		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
-		SubtitlesContainer container = factory.fromStream(input, inputType);
-		container.shiftTime(millis);
-		return factory.toSubtitlesType(container, output, inputType);
+		return transformSubtitles(input, inputType, output, SHIFTING_PROCESSING, millis);
 	}
 	
 	/**
@@ -55,10 +70,7 @@ public class Subtitles4jUtils
 	 */
 	public static File shift(File input, int millis) throws Subtitles4jException, IOException
 	{
-		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
-		SubtitlesContainer container = factory.fromFile(input);
-		container.shiftTime(millis);
-		return factory.toSubtitlesType(container, input, getType(input.getName()));
+		return transformSubtitles(input, SHIFTING_PROCESSING, millis);
 	}
 	
 	/**
@@ -75,10 +87,7 @@ public class Subtitles4jUtils
 	 */
 	private static OutputStream removeCaptions(InputStream input, SubtitlesType inputType, OutputStream output, String regex, boolean caseSensitive) throws Subtitles4jException, IOException
 	{
-		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
-		SubtitlesContainer container = factory.fromStream(input, inputType);
-		container.remove(regex, caseSensitive);
-		return factory.toSubtitlesType(container, output, inputType);
+		return transformSubtitles(input, inputType, output, REMOVING_PROCESSING, regex, caseSensitive);
 	}
 	
 	/**
@@ -109,10 +118,7 @@ public class Subtitles4jUtils
 	 */
 	private static File removeCaptions(File input, String regex, boolean caseSensitive) throws Subtitles4jException, IOException
 	{
-		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
-		SubtitlesContainer container = factory.fromFile(input);
-		container.remove(regex, caseSensitive);
-		return factory.toSubtitlesType(container, input, getType(input.getName()));
+		return transformSubtitles(input, REMOVING_PROCESSING, regex, caseSensitive);
 	}
 
 	/**
@@ -129,5 +135,54 @@ public class Subtitles4jUtils
 	public static File removeCaptionsIgnoreCase(File input, String regex) throws Subtitles4jException, IOException
 	{
 		return removeCaptions(input, regex, false);
+	}
+	
+	/**
+	 * Do a certain operation on an input subtitles stream
+	 * @param input the <code>InputStream</code> on the subtitles source
+	 * @param inputType the <code>SubtitlesType</code> of the input
+	 * @param output the <code>OutputStream</code> containing the modified subtitles
+	 * @param processing the processing to apply
+	 * @param params the optional parameters
+	 * @return the <code>OutputStream</code> containing the modified subtitles
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
+	private static OutputStream transformSubtitles(InputStream input, SubtitlesType inputType, OutputStream output, SubtitlesContainerProcessing processing, Object... params) throws Subtitles4jException, IOException
+	{
+		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
+		SubtitlesContainer container = factory.fromStream(input, inputType);
+		processing.process(container, params);
+		return factory.toSubtitlesType(container, output, inputType);
+	}
+	
+	/**
+	 * Do a certain operation on an input subtitles file
+	 * @param input the input subtitles <code>File</code> 
+	 * @param processing the processing to apply
+	 * @param params the optional parameters
+	 * @return the modified <code>File</code>, which is the same as the input
+	 * @throws Subtitles4jException if an error occurs during the operation
+	 * @throws IOException if any IO error occurs
+	 */
+	private static File transformSubtitles(File input, SubtitlesContainerProcessing processing, Object... params) throws Subtitles4jException, IOException
+	{
+		Subtitles4jFactory factory = Subtitles4jFactory.getInstance();
+		SubtitlesContainer container = factory.fromFile(input);
+		processing.process(container, params);
+		return factory.toSubtitlesType(container, input, getType(input.getName()));
+	}
+	
+	/**
+	 * This interface defines a processing on a <code>SubtitlesContainer</code>
+	 */
+	private interface SubtitlesContainerProcessing
+	{
+		/**
+		 * Do a certain operation on a <code>SubtitlesContainer</code>
+		 * @param container The <code>SubtitlesContainer</code> to treat
+		 * @param params the optional parameters
+		 */
+		void process(SubtitlesContainer container, Object... params);
 	}
 }
