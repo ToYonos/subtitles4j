@@ -1,14 +1,14 @@
 package info.toyonos.subtitles4j.model;
 
-import info.toyonos.subtitles4j.factory.SubtitlesGenerationException;
-import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import info.toyonos.subtitles4j.factory.SubtitlesGenerationException;
+import info.toyonos.subtitles4j.factory.SubtitlesVisitor;
 
 public class SubtitlesContainer implements Visitable
 {
@@ -50,7 +50,7 @@ public class SubtitlesContainer implements Visitable
 	public SubtitlesContainer()
 	{
 		captions = new ArrayList<SubtitlesContainer.Caption>();
-		styles = new HashMap<String, Map<SubtitlesContainer.StyleProperty, String>>();
+		styles = new LinkedHashMap<String, Map<SubtitlesContainer.StyleProperty, String>>();
 	}
 	
 	public String getTitle()
